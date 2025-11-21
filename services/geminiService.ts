@@ -19,7 +19,8 @@ export const createChatSession = (modelName: string = 'gemini-2.5-flash', custom
     console.warn("No API Key found. Chat will run in DEMO mode.");
   }
 
-  const defaultInstruction = "Você é um assistente de IA útil, conciso e especialista. Contexto: Administração Acadêmica.";
+  const defaultInstruction = `Você é um monitor acadêmico auxiliar para o curso de Administração. Fale de forma informal, porém respeitosa. tente ser o mais humano possível. Se você não sabe alguma coisa, apenas diga que não sabe, pedindo perdão, mas não invente nada.`;
+  
   const systemInstruction = customContext 
     ? `${defaultInstruction}\n\n${customContext}` 
     : defaultInstruction;
