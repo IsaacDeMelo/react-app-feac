@@ -10,10 +10,16 @@ export const TutorView: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const chatSessionRef = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Check for API Key presence
+    // @ts-ignore
+    const hasKey = !!process.env.API_KEY;
+    setIsConnected(hasKey);
+
     chatSessionRef.current = createChatSession();
   }, []);
 
@@ -90,13 +96,18 @@ export const TutorView: React.FC = () => {
           <div className="w-16 h-16 rounded-[1.2rem] bg-gradient-to-tr from-navy-900 to-gold-500 dark:from-gold-600 dark:to-blue-400 flex items-center justify-center shadow-xl">
             <Bot className="w-8 h-8 text-white" />
           </div>
-          <div className="absolute -bottom-1.5 -right-1.5 w-5 h-5 bg-green-500 border-[3px] border-white dark:border-[#1a1a1a] rounded-full"></div>
+          <div className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 border-[3px] border-white dark:border-[#1a1a1a] rounded-full transition-colors duration-500 ${isConnected ? 'bg-green-500' : 'bg-rose-500 animate-pulse'}`}></div>
         </div>
         <div>
-          <h2 className="font-sans font-bold text-2xl text-navy-900 dark:text-white tracking-tight">Monitor Virtual</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="font-sans font-bold text-2xl text-navy-900 dark:text-white tracking-tight">Monitor Virtual</h2>
+            {!isConnected && (
+               <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-300 text-[10px] font-bold uppercase tracking-widest rounded-md border border-rose-200 dark:border-rose-500/30">Demo Mode</span>
+            )}
+          </div>
           <p className="text-base text-navy-900/60 dark:text-gray-400 font-medium flex items-center gap-2 mt-1">
             <Sparkles className="w-4 h-4 text-gold-500" />
-            Disponível para tirar dúvidas
+            {isConnected ? "IA Conectada e Pronta" : "IA Offline (Sem Chave API)"}
           </p>
         </div>
       </div>
@@ -111,6 +122,11 @@ export const TutorView: React.FC = () => {
             <p className="text-navy-900/60 dark:text-gray-400 font-medium text-center max-w-sm text-lg">
               Olá! Como posso ajudar com seus estudos de Administração hoje?
             </p>
+            {!isConnected && (
+               <p className="text-rose-500 text-sm bg-rose-50 dark:bg-rose-500/10 px-4 py-2 rounded-xl border border-rose-100 dark:border-rose-500/20">
+                 ⚠️ Chave de API não detectada. As respostas serão simuladas.
+               </p>
+            )}
           </div>
         )}
         

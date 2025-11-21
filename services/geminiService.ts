@@ -1,15 +1,24 @@
-import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 
-// Ensure process is defined (handled by vite.config.ts in build, but good for safety)
-const apiKey = process.env.API_KEY || '';
+// Safe access to API Key that works in both Browser (via vite define) and Build
+const getApiKey = () => {
+  try {
+    // @ts-ignore
+    return process?.env?.API_KEY || '';
+  } catch (e) {
+    console.warn("Could not access process.env");
+    return '';
+  }
+};
 
+const apiKey = getApiKey();
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // -- Chat Service --
 export const createChatSession = (modelName: string = 'gemini-2.5-flash') => {
   // Fallback mock if no key is present (prevents crash in demo mode)
   if (!apiKey) {
-    console.warn("No API Key found. Chat will not function correctly.");
+    console.warn("No API Key found. Chat will run in DEMO mode.");
   }
 
   return ai.chats.create({
@@ -24,7 +33,8 @@ export const sendMessageStream = async (chat: Chat, message: string) => {
   if (!apiKey) {
     // Return a mock generator if no key to avoid API error
     async function* mockGenerator() {
-      yield { text: "⚠️ **Modo de Demonstração**: Chave de API não configurada.\n\nPara ativar a inteligência artificial, configure a `API_KEY` no painel do Render." } as any;
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
+      yield { text: "⚠️ **Modo de Demonstração**\n\nA Chave de API não foi detectada. \n\n**Para o Admin:** Configure a `API_KEY` no painel do Render (Environment Variables) para ativar a inteligência real." } as any;
     }
     return mockGenerator();
   }
