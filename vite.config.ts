@@ -7,9 +7,13 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // This allows process.env.API_KEY to work in the browser environment
-      // populated by Render's environment variables
-      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+      // This defines a global 'process' object in the browser with the env vars we need.
+      // This fixes "Uncaught ReferenceError: process is not defined".
+      'process': JSON.stringify({
+        env: {
+          API_KEY: env.API_KEY || ''
+        }
+      })
     }
   };
 });
