@@ -1,12 +1,11 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 
-// Safe access to API Key that works in both Browser (via vite define) and Build
-const getApiKey = () => {
+// Vite will replace 'process.env.API_KEY' with the actual string value during build.
+// We use a try-catch fallback just in case the replacement fails in some edge case environment.
+const getApiKey = (): string => {
   try {
-    // @ts-ignore
-    return process?.env?.API_KEY || '';
+    return process.env.API_KEY || '';
   } catch (e) {
-    console.warn("Could not access process.env");
     return '';
   }
 };
@@ -16,7 +15,6 @@ const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // -- Chat Service --
 export const createChatSession = (modelName: string = 'gemini-2.5-flash') => {
-  // Fallback mock if no key is present (prevents crash in demo mode)
   if (!apiKey) {
     console.warn("No API Key found. Chat will run in DEMO mode.");
   }
@@ -24,7 +22,7 @@ export const createChatSession = (modelName: string = 'gemini-2.5-flash') => {
   return ai.chats.create({
     model: modelName,
     config: {
-      systemInstruction: "You are a helpful, concise, and expert AI assistant.",
+      systemInstruction: "You are a helpful, concise, and expert AI assistant. Context: Academic administration.",
     },
   });
 };
@@ -34,7 +32,7 @@ export const sendMessageStream = async (chat: Chat, message: string) => {
     // Return a mock generator if no key to avoid API error
     async function* mockGenerator() {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-      yield { text: "⚠️ **Modo de Demonstração**\n\nA Chave de API não foi detectada. \n\n**Para o Admin:** Configure a `API_KEY` no painel do Render (Environment Variables) para ativar a inteligência real." } as any;
+      yield { text: "⚠️ **Modo de Demonstração**\n\nA Chave de API não foi detectada. \n\n**Para o Admin:** Verifique se a `API_KEY` está configurada corretamente nas Variáveis de Ambiente ou em `/etc/secrets/` no painel do Render." } as any;
     }
     return mockGenerator();
   }
@@ -45,7 +43,6 @@ export const sendMessageStream = async (chat: Chat, message: string) => {
 export const analyzeImage = async (base64Image: string, prompt: string) => {
   if (!apiKey) return "⚠️ API Key ausente. Configure no Render para usar a visão computacional.";
 
-  // Strip the data URL prefix to get raw base64
   const base64Data = base64Image.split(',')[1];
   
   const response = await ai.models.generateContent({
@@ -54,7 +51,7 @@ export const analyzeImage = async (base64Image: string, prompt: string) => {
       parts: [
         {
           inlineData: {
-            mimeType: 'image/jpeg', // Assuming JPEG for simplicity in this demo, usually detected from file
+            mimeType: 'image/jpeg', 
             data: base64Data
           }
         },

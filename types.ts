@@ -44,3 +44,12 @@ export interface GroundingChunk {
 export interface AiConfig {
   context: string;
 }
+
+// Global declaration for process.env to satisfy TypeScript
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      API_KEY: string;
+    }
+  }
+}
