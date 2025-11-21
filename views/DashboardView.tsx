@@ -187,7 +187,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
         {isAdmin && (
           <button 
             onClick={handleOpenNew} 
-            className="group flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-slate-900/20 dark:shadow-white/10 transition-all hover:scale-105 active:scale-95"
+            className="group flex items-center justify-center gap-2 bg-red-700 hover:bg-red-800 text-white px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-red-900/20 transition-all hover:scale-105 active:scale-95"
           >
             <Plus className="w-5 h-5" />
             <span>Nova Atividade</span>
@@ -295,19 +295,19 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                  )}
               </div>
 
-              {/* Admin Actions */}
+              {/* Admin Actions - SEMPRE VISÍVEIS AGORA PARA GARANTIR ACESSO NO MOBILE */}
               {isAdmin && (
-                <div className="absolute top-5 right-5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-5 right-5 flex items-center gap-1">
                   <button 
                     onClick={(e) => {e.stopPropagation(); handleEdit(item)}} 
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-100 hover:text-blue-600 hover:bg-blue-100 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-400 transition-all shadow-sm"
                     title="Editar"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={(e) => {e.stopPropagation(); handleDelete(item.id)}} 
-                    className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-100 hover:text-red-600 hover:bg-red-100 dark:bg-slate-800 dark:hover:bg-red-900/30 dark:text-slate-400 transition-all shadow-sm"
                     title="Excluir"
                   >
                     <Trash2 className="w-4 h-4" />
