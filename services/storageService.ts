@@ -14,14 +14,17 @@ const isExpired = (dateString: string): boolean => {
   const [year, month, day] = dateString.split('-').map(Number);
   const activityDate = new Date(year, month - 1, day);
   
-  // Add 1 day grace period so it doesn't expire ON the day, but AFTER the day
-  activityDate.setDate(activityDate.getDate() + 1);
+  // Logic update: Activity expires only if date is STRICTLY less than yesterday.
+  // This keeps today's activities visible.
+  // Actually, let's keep them visible for 24h after.
+  const expirationDate = new Date(activityDate);
+  expirationDate.setDate(expirationDate.getDate() + 1);
   
-  return today > activityDate;
+  return today > expirationDate;
 };
 
 export const getActivities = async (): Promise<Activity[]> => {
-  await delay(200);
+  await delay(50); // Reduced delay for snappier feel
   const data = localStorage.getItem(STORAGE_KEY);
   if (!data) return [];
   
@@ -45,7 +48,7 @@ export const getActivities = async (): Promise<Activity[]> => {
 };
 
 export const addActivity = async (activity: Omit<Activity, 'id' | 'createdAt'>): Promise<Activity> => {
-  await delay(400);
+  await delay(200);
   const current = await getActivities();
   
   const newActivity: Activity = {
@@ -55,8 +58,6 @@ export const addActivity = async (activity: Omit<Activity, 'id' | 'createdAt'>):
   };
 
   // Persist
-  // Note: In a real app with heavy files, we wouldn't put base64 in localStorage due to 5MB limit.
-  // For this academic demo, it is acceptable for small PDFs/Images.
   const updated = [...current, newActivity];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   
@@ -64,9 +65,7 @@ export const addActivity = async (activity: Omit<Activity, 'id' | 'createdAt'>):
 };
 
 export const deleteActivity = async (id: string): Promise<void> => {
-  await delay(200);
-  // We fetch raw to ensure we don't miss anything during a race condition, 
-  // but here we just use the getActivities wrapper for simplicity
+  await delay(100);
   const data = localStorage.getItem(STORAGE_KEY);
   if (!data) return;
   
@@ -83,7 +82,7 @@ export const getAiConfig = (): AiConfig => {
     return JSON.parse(data);
   }
   return {
-    context: "Você é um monitor acadêmico auxiliar para o curso de Administração. Responda com formalidade acadêmica, citando autores clássicos da administração (como Kotler, Chiavenato, Porter) quando relevante."
+    context: "Você é um monitor acadêmico auxiliar. Responda com formalidade acadêmica, mas de forma acessível."
   };
 };
 

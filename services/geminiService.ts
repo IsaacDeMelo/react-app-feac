@@ -14,15 +14,20 @@ const apiKey = getApiKey();
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // -- Chat Service --
-export const createChatSession = (modelName: string = 'gemini-2.5-flash') => {
+export const createChatSession = (modelName: string = 'gemini-2.5-flash', customContext: string = '') => {
   if (!apiKey) {
     console.warn("No API Key found. Chat will run in DEMO mode.");
   }
 
+  const defaultInstruction = "Você é um assistente de IA útil, conciso e especialista. Contexto: Administração Acadêmica.";
+  const systemInstruction = customContext 
+    ? `${defaultInstruction}\n\n${customContext}` 
+    : defaultInstruction;
+
   return ai.chats.create({
     model: modelName,
     config: {
-      systemInstruction: "You are a helpful, concise, and expert AI assistant. Context: Academic administration.",
+      systemInstruction: systemInstruction,
     },
   });
 };

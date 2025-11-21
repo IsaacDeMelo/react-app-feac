@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Sparkles, GraduationCap } from 'lucide-react';
+import { Send, Bot, User, Loader2, Sparkles, CalendarCheck } from 'lucide-react';
 import { createChatSession, sendMessageStream } from '../services/geminiService';
 import { ChatMessage } from '../types';
-import { getAiConfig } from '../services/storageService';
+import { getAiConfig, getActivities } from '../services/storageService';
 import { Markdown } from '../components/Markdown';
 import { Chat, GenerateContentResponse } from '@google/genai';
 
@@ -12,9 +12,63 @@ export const TutorView: React.FC = () => {
   const [isStreaming, setIsStreaming] = useState(false);
   const chatSessionRef = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [activityCount, setActivityCount] = useState(0);
 
   useEffect(() => {
-    chatSessionRef.current = createChatSession();
+    const initChat = async () => {
+      try {
+        // 1. Obter configurações salvas (contexto da disciplina)
+        const aiConfig = getAiConfig();
+        
+        // 2. Obter atividades do Mural
+        const activities = await getActivities();
+        setActivityCount(activities.length);
+        
+        // 3. Obter data atual para cálculos de tempo
+        const today = new Date();
+        const dateString = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // 4. Formatar lista de atividades para a IA entender claramente
+        // Convertendo YYYY-MM-DD para DD/MM/YYYY para evitar confusão
+        const activitiesList = activities.length > 0 
+          ? activities.map(a => {
+              const [y, m, d] = a.date.split('-');
+              const brDate = `${d}/${m}/${y}`;
+              return `- DATA: ${brDate} | TIPO: ${a.type.toUpperCase()} | TÍTULO: ${a.title} | DISCIPLINA: ${a.subject} | OBS: ${a.description}`;
+            }).join('\n')
+          : "Nenhuma atividade cadastrada no mural no momento.";
+
+        // 5. Criar o Prompt de Sistema Robusto
+        const systemContext = `
+        VOCÊ É O MONITOR VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e, PRINCIPALMENTE, sobre datas e prazos.
+        
+        --- HOJE ---
+        Data atual: ${dateString} (Use isso para calcular "amanhã", "semana que vem", etc)
+        
+        --- MURAL DA TURMA (CALENDÁRIO DE PROVAS E TRABALHOS) ---
+        Aqui está a lista exata do que está agendado. Use APENAS esta lista para responder sobre datas. Se não estiver aqui, não existe.
+        
+        ${activitiesList}
+
+        --- CONTEXTO DA DISCIPLINA ---
+        ${aiConfig.context}
+
+        --- REGRAS ---
+        1. Se o aluno perguntar "o que tem pra fazer?", liste as atividades futuras do mural.
+        2. Se o mural estiver vazio e perguntarem sobre datas, diga que não há nada agendado.
+        3. Seja cordial, claro e use Markdown para negrito e listas.
+        `;
+
+        chatSessionRef.current = createChatSession('gemini-2.5-flash', systemContext);
+      } catch (e) {
+        console.error("Erro ao iniciar chat", e);
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initChat();
   }, []);
 
   useEffect(() => {
@@ -33,9 +87,7 @@ export const TutorView: React.FC = () => {
     setMessages(prev => [...prev, { role: 'model', text: '', isLoading: true }]);
 
     try {
-      const aiConfig = getAiConfig();
-      const prompt = `[CONTEXTO DA DISCIPLINA]: ${aiConfig.context} \n\n [DÚVIDA DO ALUNO]: ${userMsg}`;
-      const result = await sendMessageStream(chatSessionRef.current, prompt);
+      const result = await sendMessageStream(chatSessionRef.current, userMsg);
       
       let fullText = '';
       for await (const chunk of result) {
@@ -62,27 +114,49 @@ export const TutorView: React.FC = () => {
     }
   };
 
+  if (isInitializing) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center bg-slate-50 dark:bg-slate-950 gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-brand-600" />
+        <p className="text-slate-500 text-sm animate-pulse">Lendo o mural da turma...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col h-full relative">
+    <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-950">
       
+      {/* Context Badge */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex justify-center pointer-events-none pt-4 opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
+         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
+            <CalendarCheck className="w-3 h-3 text-green-500" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+              {activityCount > 0 ? `Sincronizado: ${activityCount} atividades` : 'Mural vazio'}
+            </span>
+         </div>
+      </div>
+
       {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto p-4 pb-0 space-y-6 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6 custom-scrollbar pt-16">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-            <div className="w-20 h-20 bg-gradient-to-tr from-brand-200 to-brand-50 rounded-3xl flex items-center justify-center mb-6 shadow-lg shadow-brand-500/10">
-              <Sparkles className="w-10 h-10 text-brand-600" />
+          <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in">
+            <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative">
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 border-4 border-slate-50 dark:border-slate-950 rounded-full"></div>
+              <Bot className="w-10 h-10 text-brand-600 dark:text-brand-400" />
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Monitor Virtual</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-center max-w-[260px] text-sm leading-relaxed">
-              Olá! Sou seu assistente baseado em IA. Tire dúvidas sobre o cronograma, provas ou assuntos da aula.
+            <p className="text-slate-500 dark:text-slate-400 text-center max-w-[280px] text-sm leading-relaxed">
+              Estou conectado ao mural da turma. Pergunte sobre datas, prazos ou tire dúvidas da matéria.
             </p>
             
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md">
-               <button onClick={() => setInput("Quais são as próximas provas?")} className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-300 hover:border-brand-300 transition-colors text-left">
-                 📅 Quais são as próximas provas?
+            <div className="mt-10 grid grid-cols-1 gap-3 w-full max-w-xs">
+               <button onClick={() => setInput("O que temos agendado para esta semana?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
+                 <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><CalendarCheck className="w-4 h-4" /></span>
+                 O que temos agendado para essa semana?
                </button>
-               <button onClick={() => setInput("Resuma o conteúdo da última aula")} className="p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-600 dark:text-slate-300 hover:border-brand-300 transition-colors text-left">
-                 📚 Resumo do conteúdo
+               <button onClick={() => setInput("Quais são as regras para o trabalho final?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
+                 <span className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600"><Bot className="w-4 h-4" /></span>
+                 Quais as regras do trabalho?
                </button>
             </div>
           </div>
@@ -93,16 +167,16 @@ export const TutorView: React.FC = () => {
             
             {/* Avatar Bot */}
             {msg.role === 'model' && (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-1 shadow-md">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-indigo-600 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-md">
                 <Bot className="w-4 h-4 text-white" />
               </div>
             )}
 
             <div className={`
-              relative max-w-[85%] md:max-w-[70%] px-5 py-3.5 text-sm leading-relaxed shadow-sm
+              relative max-w-[85%] md:max-w-[70%] px-5 py-4 text-[15px] leading-relaxed shadow-sm
               ${msg.role === 'user' 
-                ? 'bg-brand-600 text-white rounded-2xl rounded-tr-sm' 
-                : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-2xl rounded-tl-sm'
+                ? 'bg-brand-600 text-white rounded-[1.2rem] rounded-br-sm' 
+                : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-[1.2rem] rounded-bl-sm'
               }
             `}>
               {msg.isLoading && !msg.text ? (
@@ -115,23 +189,16 @@ export const TutorView: React.FC = () => {
                 <Markdown content={msg.text} className={msg.role === 'user' ? 'prose-invert' : ''} />
               )}
             </div>
-
-            {/* Avatar User */}
-            {msg.role === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center flex-shrink-0 mt-1">
-                <User className="w-4 h-4 text-slate-500" />
-              </div>
-            )}
           </div>
         ))}
-        <div ref={messagesEndRef} className="h-2" />
+        <div ref={messagesEndRef} className="h-4" />
       </div>
 
       {/* Fixed Input Area */}
       <div className="p-4 bg-slate-50 dark:bg-slate-950 z-30 sticky bottom-0">
-         <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2">
+         <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
             <textarea
-               className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-3 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[50px]"
+               className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-3.5 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[52px] text-base"
                placeholder="Digite sua mensagem..."
                value={input}
                onChange={e => setInput(e.target.value)}
@@ -148,7 +215,7 @@ export const TutorView: React.FC = () => {
               onClick={handleSubmit}
               disabled={!input.trim() || isStreaming}
               className={`
-                h-10 w-10 flex items-center justify-center rounded-xl transition-all mb-1
+                h-11 w-11 flex items-center justify-center rounded-2xl transition-all mb-0.5
                 ${!input.trim() || isStreaming 
                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed' 
                    : 'bg-brand-600 hover:bg-brand-700 text-white shadow-lg shadow-brand-500/20 active:scale-90'
