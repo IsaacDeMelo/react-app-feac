@@ -75,21 +75,21 @@ const App: React.FC = () => {
         className={`
           w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-all duration-300 group border
           ${isActive 
-            ? 'bg-slate-900 text-white border-slate-900 dark:bg-brand-600 dark:border-brand-500 shadow-xl shadow-slate-900/10' 
+            ? 'bg-brand-50 text-brand-900 border-brand-100 dark:bg-brand-900/20 dark:text-white dark:border-brand-800 shadow-sm' 
             : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-800 dark:hover:bg-slate-800'
           }
         `}
       >
         <div className="flex items-center gap-4">
-          <div className={`p-2.5 rounded-xl transition-colors ${isActive ? 'bg-white/10' : 'bg-slate-100 dark:bg-slate-800'}`}>
-            <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400'}`} strokeWidth={2} />
+          <div className={`p-2.5 rounded-xl transition-colors ${isActive ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
+            <Icon className="w-5 h-5" strokeWidth={2} />
           </div>
           <div className="text-left">
             <span className="block font-bold text-sm">{label}</span>
-            <span className={`text-xs ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>{desc}</span>
+            <span className={`text-xs ${isActive ? 'text-brand-600/80 dark:text-brand-300' : 'text-slate-400'}`}>{desc}</span>
           </div>
         </div>
-        {isActive && <ChevronRight className="w-4 h-4 opacity-50" />}
+        {isActive && <ChevronRight className="w-4 h-4 text-brand-400" />}
       </button>
     );
   };
@@ -101,13 +101,13 @@ const App: React.FC = () => {
         onClick={() => setCurrentView(mode)}
         className={`
           flex-1 flex flex-col items-center justify-center gap-1 py-2 transition-all duration-300 relative
-          ${isActive ? 'text-red-600 dark:text-red-400' : 'text-slate-400 dark:text-slate-500'}
+          ${isActive ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400 dark:text-slate-500'}
         `}
       >
         {isActive && (
-          <span className="absolute -top-0.5 w-12 h-1 bg-red-600 dark:bg-red-400 rounded-b-xl shadow-lg shadow-red-500/50" />
+          <span className="absolute -top-0.5 w-12 h-1 bg-brand-600 dark:bg-brand-400 rounded-b-xl shadow-lg shadow-brand-500/50" />
         )}
-        <div className={`p-2 rounded-2xl transition-all ${isActive ? 'bg-red-50 dark:bg-red-900/20 -translate-y-1' : ''}`}>
+        <div className={`p-2 rounded-2xl transition-all ${isActive ? 'bg-brand-50 dark:bg-brand-900/20 -translate-y-1' : ''}`}>
           <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
         </div>
         <span className="text-[10px] font-bold tracking-wide">{label}</span>
@@ -166,7 +166,7 @@ const App: React.FC = () => {
                   </button>
                   <button 
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-900/10 rounded-xl transition-colors"
                   >
                     <LogOut className="w-4 h-4" /> Sair do Admin
                   </button>
@@ -181,15 +181,15 @@ const App: React.FC = () => {
                 </button>
              )}
           </div>
-          <p className="text-[10px] text-center text-slate-400 font-medium">v2.0.4 • Portal Acadêmico</p>
+          <p className="text-[10px] text-center text-slate-400 font-medium">v2.1.0 • Portal Acadêmico</p>
         </div>
       </aside>
 
       {/* --- Main Content Area --- */}
       <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
         
-        {/* Mobile Top Bar (Fixed & Improved) */}
-        <header className="md:hidden fixed top-0 left-0 right-0 h-24 z-40 px-6 flex items-center justify-between transition-all shadow-lg bg-gradient-to-r from-red-700 to-red-900 rounded-b-[2rem]">
+        {/* Mobile Top Bar (Fixed & Improved with Brand Color) */}
+        <header className="md:hidden fixed top-0 left-0 right-0 h-24 z-40 px-6 flex items-center justify-between transition-all shadow-lg bg-brand-700 rounded-b-[2rem]">
           <div className="flex items-center gap-4">
              <div className="bg-white p-2 rounded-2xl shadow-lg shadow-black/10">
                <img 
@@ -200,7 +200,7 @@ const App: React.FC = () => {
              </div>
              <div>
                <span className="block font-extrabold text-white text-lg leading-none tracking-tight">UFAL</span>
-               <span className="text-[10px] font-bold text-red-200 uppercase tracking-widest opacity-90">Portal Acadêmico</span>
+               <span className="text-[10px] font-bold text-brand-100 uppercase tracking-widest opacity-90">Portal Acadêmico</span>
              </div>
           </div>
           
@@ -215,7 +215,7 @@ const App: React.FC = () => {
             {isAdmin ? (
               <button 
                 onClick={() => setShowSettingsModal(true)}
-                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-red-700 shadow-lg shadow-black/10 hover:bg-slate-50 transition-colors"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-brand-700 shadow-lg shadow-black/10 hover:bg-slate-50 transition-colors"
               >
                 <Settings className="w-5 h-5" />
               </button>
@@ -251,10 +251,10 @@ const App: React.FC = () => {
       {showLoginModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[70] flex items-center justify-center p-6 animate-fade-in">
           <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-[2rem] shadow-2xl p-8 animate-scale-in border border-white/20 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 to-red-700"></div>
+            <div className="absolute top-0 left-0 w-full h-2 bg-brand-600"></div>
             <div className="flex flex-col items-center mb-8 mt-2">
               <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-slate-900 dark:text-white shadow-inner">
-                <Shield className="w-8 h-8 text-red-600" />
+                <Shield className="w-8 h-8 text-brand-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Área Restrita</h3>
               <p className="text-sm text-slate-500 text-center mt-2 leading-relaxed">Acesso exclusivo para representantes de turma.</p>
@@ -264,14 +264,14 @@ const App: React.FC = () => {
                 type="password"
                 placeholder="Senha de acesso"
                 autoFocus
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-4 text-center focus:ring-2 focus:ring-red-500 outline-none transition-all font-bold tracking-widest text-lg"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-4 text-center focus:ring-2 focus:ring-brand-500 outline-none transition-all font-bold tracking-widest text-lg"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
               />
-              {loginError && <p className="text-red-500 text-xs text-center font-bold animate-pulse bg-red-50 dark:bg-red-900/20 py-2 rounded-lg">Senha incorreta</p>}
+              {loginError && <p className="text-brand-500 text-xs text-center font-bold animate-pulse bg-brand-50 dark:bg-brand-900/20 py-2 rounded-lg">Senha incorreta</p>}
               <div className="grid grid-cols-2 gap-3 pt-4">
                 <button type="button" onClick={() => setShowLoginModal(false)} className="py-3.5 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Voltar</button>
-                <button type="submit" className="py-3.5 rounded-2xl text-sm font-bold bg-red-600 text-white shadow-xl shadow-red-500/30 hover:bg-red-700 transition-all transform active:scale-95">Entrar</button>
+                <button type="submit" className="py-3.5 rounded-2xl text-sm font-bold bg-brand-600 text-white shadow-xl shadow-brand-500/30 hover:bg-brand-700 transition-all transform active:scale-95">Entrar</button>
               </div>
             </form>
           </div>
@@ -297,16 +297,16 @@ const App: React.FC = () => {
             <div className="p-8 flex-1 overflow-y-auto bg-white dark:bg-slate-950">
                
                {/* Logout Section for Mobile within Modal */}
-               <div className="md:hidden mb-8 p-5 bg-red-50 dark:bg-red-900/10 rounded-2xl border border-red-100 dark:border-red-900/20 flex items-center justify-between">
+               <div className="md:hidden mb-8 p-5 bg-brand-50 dark:bg-brand-900/10 rounded-2xl border border-brand-100 dark:border-brand-900/20 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600">
+                    <div className="p-2 bg-brand-100 dark:bg-brand-900/30 rounded-lg text-brand-600">
                       <LogOut className="w-5 h-5" />
                     </div>
-                    <div className="text-red-900 dark:text-red-200 font-bold">Encerrar Sessão</div>
+                    <div className="text-brand-900 dark:text-brand-200 font-bold">Encerrar Sessão</div>
                   </div>
                   <button 
                     onClick={handleLogout}
-                    className="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-red-500/20 active:scale-95 transition-all"
+                    className="px-4 py-2 bg-brand-600 text-white rounded-xl text-xs font-bold shadow-lg shadow-brand-500/20 active:scale-95 transition-all"
                   >
                     Sair Agora
                   </button>

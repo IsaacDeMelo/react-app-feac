@@ -92,10 +92,6 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
     if (editingId) {
       // Update existing
-      // We need to find original createdAt or just keep it if we passed entire object. 
-      // Since we only have partial data in formData, let's re-find the original to be safe or just use API
-      // Actually, updateActivity needs an ID.
-      // Let's fetch the original to preserve createdAt
       const original = activities.find(a => a.id === editingId);
       if (original) {
         await updateActivity({
@@ -130,7 +126,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
   const filteredActivities = activities.filter(a => filter === 'ALL' || a.type === filter);
 
-  // Color Helpers
+  // Color Helpers - MANTIDOS SEMANTICAMENTE para diferenciar Tipos de Atividade
   const getTypeStyle = (type: ActivityType) => {
     switch (type) {
       case 'prova': return {
@@ -187,7 +183,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
         {isAdmin && (
           <button 
             onClick={handleOpenNew} 
-            className="group flex items-center justify-center gap-2 bg-red-700 hover:bg-red-800 text-white px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-red-900/20 transition-all hover:scale-105 active:scale-95"
+            className="group flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-brand-900/20 transition-all hover:scale-105 active:scale-95"
           >
             <Plus className="w-5 h-5" />
             <span>Nova Atividade</span>
@@ -195,13 +191,13 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
         )}
       </div>
 
-      {/* Filter Pills */}
+      {/* Filter Pills - UNIFICADOS COM BRAND COLOR */}
       <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-4 hide-scrollbar">
         <button
           onClick={() => setFilter('ALL')}
           className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap border ${
             filter === 'ALL' 
-              ? 'bg-slate-900 text-white border-slate-900 dark:bg-brand-600 dark:border-brand-600 shadow-lg' 
+              ? 'bg-brand-600 text-white border-brand-600 dark:bg-brand-600 dark:border-brand-600 shadow-lg shadow-brand-500/30' 
               : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 hover:border-slate-300'
           }`}
         >
@@ -213,7 +209,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
             onClick={() => setFilter(t)}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap border ${
               filter === t 
-                ? 'bg-slate-900 text-white border-slate-900 dark:bg-brand-600 dark:border-brand-600 shadow-lg' 
+                ? 'bg-brand-600 text-white border-brand-600 dark:bg-brand-600 dark:border-brand-600 shadow-lg shadow-brand-500/30' 
                 : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 hover:border-slate-300'
             }`}
           >
@@ -295,7 +291,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                  )}
               </div>
 
-              {/* Admin Actions - SEMPRE VISÍVEIS AGORA PARA GARANTIR ACESSO NO MOBILE */}
+              {/* Admin Actions */}
               {isAdmin && (
                 <div className="absolute top-5 right-5 flex items-center gap-1">
                   <button 
