@@ -64,6 +64,17 @@ export const addActivity = async (activity: Omit<Activity, 'id' | 'createdAt'>):
   return newActivity;
 };
 
+export const updateActivity = async (activity: Activity): Promise<void> => {
+  await delay(200);
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (!data) return;
+
+  const activities: Activity[] = JSON.parse(data);
+  const updated = activities.map(a => a.id === activity.id ? activity : a);
+  
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+};
+
 export const deleteActivity = async (id: string): Promise<void> => {
   await delay(100);
   const data = localStorage.getItem(STORAGE_KEY);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical } from 'lucide-react';
+import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical, Pencil } from 'lucide-react';
 import { Activity, ActivityType, Attachment } from '../types';
-import { getActivities, addActivity, deleteActivity } from '../services/storageService';
+import { getActivities, addActivity, updateActivity, deleteActivity } from '../services/storageService';
 
 interface DashboardProps {
   isAdmin: boolean;
@@ -13,6 +13,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [filter, setFilter] = useState<'ALL' | ActivityType>('ALL');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
@@ -43,6 +44,25 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
     }
   };
 
+  const handleEdit = (activity: Activity) => {
+    setFormData({
+      title: activity.title,
+      subject: activity.subject,
+      date: activity.date,
+      type: activity.type,
+      description: activity.description,
+      attachment: activity.attachment || null
+    });
+    setEditingId(activity.id);
+    setShowModal(true);
+  };
+
+  const handleOpenNew = () => {
+    setFormData({ title: '', subject: '', date: '', type: 'atividade', description: '', attachment: null });
+    setEditingId(null);
+    setShowModal(true);
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -69,16 +89,41 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
     e.preventDefault();
     if (!formData.title || !formData.date) return;
     setSubmitting(true);
-    await addActivity({
-      title: formData.title,
-      subject: formData.subject,
-      date: formData.date,
-      type: formData.type,
-      description: formData.description,
-      attachment: formData.attachment || undefined
-    });
+
+    if (editingId) {
+      // Update existing
+      // We need to find original createdAt or just keep it if we passed entire object. 
+      // Since we only have partial data in formData, let's re-find the original to be safe or just use API
+      // Actually, updateActivity needs an ID.
+      // Let's fetch the original to preserve createdAt
+      const original = activities.find(a => a.id === editingId);
+      if (original) {
+        await updateActivity({
+          id: editingId,
+          createdAt: original.createdAt,
+          title: formData.title,
+          subject: formData.subject,
+          date: formData.date,
+          type: formData.type,
+          description: formData.description,
+          attachment: formData.attachment || undefined
+        });
+      }
+    } else {
+      // Create new
+      await addActivity({
+        title: formData.title,
+        subject: formData.subject,
+        date: formData.date,
+        type: formData.type,
+        description: formData.description,
+        attachment: formData.attachment || undefined
+      });
+    }
+
     setSubmitting(false);
     setShowModal(false);
+    setEditingId(null);
     setFormData({ title: '', subject: '', date: '', type: 'atividade', description: '', attachment: null });
     loadData();
   };
@@ -141,7 +186,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
         
         {isAdmin && (
           <button 
-            onClick={() => setShowModal(true)} 
+            onClick={handleOpenNew} 
             className="group flex items-center justify-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-slate-900/20 dark:shadow-white/10 transition-all hover:scale-105 active:scale-95"
           >
             <Plus className="w-5 h-5" />
@@ -252,26 +297,40 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
               {/* Admin Actions */}
               {isAdmin && (
-                <button 
-                  onClick={(e) => {e.stopPropagation(); handleDelete(item.id)}} 
-                  className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all opacity-0 group-hover:opacity-100"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="absolute top-5 right-5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={(e) => {e.stopPropagation(); handleEdit(item)}} 
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                    title="Editar"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={(e) => {e.stopPropagation(); handleDelete(item.id)}} 
+                    className="w-8 h-8 flex items-center justify-center rounded-full text-slate-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    title="Excluir"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               )}
             </div>
           );
         })}
       </div>
 
-      {/* Modal: Nova Atividade */}
+      {/* Modal: Nova/Editar Atividade */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fade-in">
            <div className="bg-white dark:bg-slate-950 w-full max-w-xl rounded-[2rem] shadow-2xl flex flex-col max-h-[90vh] animate-scale-in border border-white/10 overflow-hidden">
               <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
                  <div>
-                   <h3 className="font-bold text-2xl text-slate-900 dark:text-white tracking-tight">Nova Atividade</h3>
-                   <p className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wide">Adicionar ao Mural</p>
+                   <h3 className="font-bold text-2xl text-slate-900 dark:text-white tracking-tight">
+                     {editingId ? 'Editar Atividade' : 'Nova Atividade'}
+                   </h3>
+                   <p className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wide">
+                     {editingId ? 'Atualizar informações' : 'Adicionar ao Mural'}
+                   </p>
                  </div>
                  <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors"><X className="w-6 h-6 text-slate-400" /></button>
               </div>
@@ -381,7 +440,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                     </div>
 
                     <button type="submit" disabled={submitting} className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-lg py-4 rounded-2xl shadow-xl shadow-brand-500/20 flex justify-center items-center gap-3 transition-all transform active:scale-[0.98] mt-4">
-                       {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : "Publicar Atividade"}
+                       {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : (editingId ? "Atualizar Atividade" : "Publicar Atividade")}
                     </button>
                  </form>
               </div>

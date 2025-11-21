@@ -117,9 +117,11 @@ const App: React.FC = () => {
       <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl">
         <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-600 to-brand-700 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-500/30 transform rotate-3">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
+              alt="UFAL Logo" 
+              className="w-12 h-auto object-contain drop-shadow-md"
+            />
             <div>
               <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Portal UFAL</h1>
               <div className="flex items-center gap-1.5 mt-1">
@@ -182,9 +184,11 @@ const App: React.FC = () => {
         {/* Mobile Top Bar (Fixed & Improved) */}
         <header className="md:hidden fixed top-0 left-0 right-0 h-20 glass z-40 px-6 flex items-center justify-between transition-all border-b border-slate-200/50 dark:border-slate-800/50">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20">
-                <GraduationCap className="w-6 h-6 text-white" />
-             </div>
+             <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
+                alt="UFAL" 
+                className="w-10 h-auto object-contain drop-shadow-sm"
+             />
              <div>
                <span className="block font-bold text-slate-900 dark:text-white leading-none">UFAL</span>
                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">Portal</span>
