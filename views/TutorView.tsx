@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Loader2, Sparkles, StopCircle } from 'lucide-react';
 import { createChatSession, sendMessageStream } from '../services/geminiService';
 import { ChatMessage } from '../types';
 import { getAiConfig } from '../services/storageService';
@@ -10,26 +10,16 @@ export const TutorView: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
   const chatSessionRef = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check for API Key presence
-    // @ts-ignore
-    const hasKey = !!process.env.API_KEY;
-    setIsConnected(hasKey);
-
     chatSessionRef.current = createChatSession();
   }, []);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isStreaming]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,44 +34,28 @@ export const TutorView: React.FC = () => {
 
     try {
       const aiConfig = getAiConfig();
-      const prompt = `
-      [CONTEXTO ACADÊMICO - CURSO ADMINISTRAÇÃO]: 
-      ${aiConfig.context}
-      
-      [ALUNO]:
-      ${userMsg}
-      
-      Seja direto, educado e cite conceitos teóricos quando útil.
-      `;
-
+      const prompt = `[CONTEXTO]: ${aiConfig.context} \n\n [ALUNO]: ${userMsg}`;
       const result = await sendMessageStream(chatSessionRef.current, prompt);
       
       let fullText = '';
-      
       for await (const chunk of result) {
         const c = chunk as GenerateContentResponse;
-        const textChunk = c.text || '';
-        fullText += textChunk;
-
+        fullText += (c.text || '');
         setMessages(prev => {
-          const newMessages = [...prev];
-          const lastMsg = newMessages[newMessages.length - 1];
-          if (lastMsg.role === 'model') {
-            lastMsg.text = fullText;
-            lastMsg.isLoading = false;
+          const newMsgs = [...prev];
+          const last = newMsgs[newMsgs.length - 1];
+          if (last.role === 'model') {
+            last.text = fullText;
+            last.isLoading = false;
           }
-          return newMessages;
+          return newMsgs;
         });
       }
     } catch (error) {
-      console.error("Chat error:", error);
       setMessages(prev => {
-        const newMessages = [...prev];
-        const lastMsg = newMessages[newMessages.length - 1];
-        lastMsg.text = "O servidor da universidade não está respondendo no momento.";
-        lastMsg.isError = true;
-        lastMsg.isLoading = false;
-        return newMessages;
+        const newMsgs = [...prev];
+        newMsgs[newMsgs.length - 1] = { role: 'model', text: "Erro ao conectar com o monitor.", isError: true };
+        return newMsgs;
       });
     } finally {
       setIsStreaming(false);
@@ -89,103 +63,73 @@ export const TutorView: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-white/50 dark:bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/60 dark:border-white/5 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full relative bg-slate-50 dark:bg-surface-900">
       {/* Chat Header */}
-      <div className="px-10 py-8 border-b border-gray-200/50 dark:border-white/5 flex items-center gap-6 bg-white/40 dark:bg-white/5 backdrop-blur-md z-10">
-        <div className="relative">
-          <div className="w-16 h-16 rounded-[1.2rem] bg-gradient-to-tr from-navy-900 to-gold-500 dark:from-gold-600 dark:to-blue-400 flex items-center justify-center shadow-xl">
-            <Bot className="w-8 h-8 text-white" />
-          </div>
-          <div className={`absolute -bottom-1.5 -right-1.5 w-5 h-5 border-[3px] border-white dark:border-[#1a1a1a] rounded-full transition-colors duration-500 ${isConnected ? 'bg-green-500' : 'bg-rose-500 animate-pulse'}`}></div>
-        </div>
-        <div>
-          <div className="flex items-center gap-3">
-            <h2 className="font-sans font-bold text-2xl text-navy-900 dark:text-white tracking-tight">Monitor Virtual</h2>
-            {!isConnected && (
-               <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-300 text-[10px] font-bold uppercase tracking-widest rounded-md border border-rose-200 dark:border-rose-500/30">Demo Mode</span>
-            )}
-          </div>
-          <p className="text-base text-navy-900/60 dark:text-gray-400 font-medium flex items-center gap-2 mt-1">
-            <Sparkles className="w-4 h-4 text-gold-500" />
-            {isConnected ? "IA Conectada e Pronta" : "IA Offline (Sem Chave API)"}
-          </p>
-        </div>
+      <div className="absolute top-0 left-0 right-0 bg-white/80 dark:bg-surface-800/80 backdrop-blur-md border-b border-gray-200 dark:border-white/5 z-20 p-4 flex items-center justify-center shadow-sm">
+         <div className="flex flex-col items-center">
+            <h2 className="text-sm font-bold text-slate-800 dark:text-white">Monitor Virtual</h2>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">Online</span>
+            </div>
+         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 pb-24 pt-20 space-y-6 custom-scrollbar">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full space-y-8 opacity-60">
-            <div className="w-24 h-24 bg-white dark:bg-white/5 rounded-3xl flex items-center justify-center">
-              <Sparkles className="w-10 h-10 text-navy-900/40 dark:text-white/40" />
+          <div className="flex flex-col items-center justify-center h-full opacity-50 mt-10">
+            <div className="w-20 h-20 bg-gradient-to-tr from-brand-200 to-brand-50 rounded-2xl flex items-center justify-center mb-4">
+              <Sparkles className="w-10 h-10 text-brand-500" />
             </div>
-            <p className="text-navy-900/60 dark:text-gray-400 font-medium text-center max-w-sm text-lg">
-              Olá! Como posso ajudar com seus estudos de Administração hoje?
-            </p>
-            {!isConnected && (
-               <p className="text-rose-500 text-sm bg-rose-50 dark:bg-rose-500/10 px-4 py-2 rounded-xl border border-rose-100 dark:border-rose-500/20">
-                 ⚠️ Chave de API não detectada. As respostas serão simuladas.
-               </p>
-            )}
+            <p className="text-sm font-medium text-slate-500 text-center max-w-[200px]">Tire dúvidas sobre matérias, datas e avisos da turma.</p>
           </div>
         )}
-        
+
         {messages.map((msg, idx) => (
-          <div key={idx} className={`flex gap-6 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-            {msg.role === 'model' && (
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-white/10 border border-gray-200 dark:border-white/5 flex items-center justify-center flex-shrink-0 mt-4 shadow-md">
-                <Bot className="w-5 h-5 text-navy-900 dark:text-gold-500" />
-              </div>
-            )}
-            
-            <div className={`max-w-[75%] rounded-3xl px-8 py-6 text-base leading-relaxed shadow-sm ${
-              msg.role === 'user' 
-                ? 'bg-navy-900 dark:bg-white text-white dark:text-black rounded-tr-none' 
-                : 'bg-white dark:bg-[#1a1a1a] text-navy-900 dark:text-gray-200 border border-gray-100 dark:border-white/5 rounded-tl-none'
-            }`}>
+          <div key={idx} className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+            <div className={`
+              max-w-[85%] md:max-w-[70%] px-5 py-3.5 rounded-2xl shadow-sm relative
+              ${msg.role === 'user' 
+                ? 'bg-brand-600 text-white rounded-tr-sm' 
+                : 'bg-white dark:bg-surface-800 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-white/5 rounded-tl-sm'
+              }
+            `}>
               {msg.isLoading && !msg.text ? (
-                <div className="flex items-center gap-3 text-gray-400">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span className="text-sm font-medium">Processando resposta...</span>
-                </div>
+                 <div className="flex gap-1.5 items-center h-5">
+                    <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms'}}></span>
+                    <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms'}}></span>
+                    <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms'}}></span>
+                 </div>
               ) : (
-                <Markdown content={msg.text} />
+                <Markdown content={msg.text} className={msg.role === 'user' ? 'prose-invert' : ''} />
               )}
             </div>
-
-            {msg.role === 'user' && (
-              <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-white/20 flex items-center justify-center flex-shrink-0 mt-4">
-                <User className="w-5 h-5 text-gray-500 dark:text-white" />
-              </div>
-            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
-      <div className="p-8 bg-white/60 dark:bg-black/20 backdrop-blur-xl border-t border-gray-200/50 dark:border-white/5">
-        <form onSubmit={handleSubmit} className="relative group">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Pergunte sobre provas, trabalhos ou teoria..."
-            disabled={isStreaming}
-            className="w-full bg-white dark:bg-[#0f1115] text-navy-900 dark:text-white placeholder-gray-400 rounded-3xl pl-8 pr-16 py-5 focus:outline-none focus:ring-2 focus:ring-navy-800 dark:focus:ring-gold-500/50 border border-gray-200 dark:border-white/10 transition-all shadow-sm group-hover:shadow-lg font-medium text-lg"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim() || isStreaming}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-navy-900 hover:bg-navy-800 dark:bg-white dark:hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-2xl text-white dark:text-black transition-all shadow-lg transform active:scale-90"
-          >
-            {isStreaming ? (
-              <Loader2 className="w-6 h-6 animate-spin" />
-            ) : (
-              <Send className="w-5 h-5" />
-            )}
-          </button>
-        </form>
+      <div className="absolute bottom-0 md:bottom-4 md:left-4 md:right-4 left-0 right-0 p-3 md:p-0 z-30">
+         <div className="bg-white dark:bg-surface-800 md:rounded-2xl md:shadow-xl md:border md:border-gray-200 dark:md:border-white/10 border-t border-gray-200 dark:border-white/5 p-2 md:p-3">
+            <form onSubmit={handleSubmit} className="flex items-end gap-2">
+               <input
+                  className="flex-1 bg-gray-100 dark:bg-surface-900 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500/50 text-slate-900 dark:text-white placeholder-gray-400 transition-all resize-none h-12"
+                  placeholder="Digite sua dúvida..."
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  disabled={isStreaming}
+               />
+               <button 
+                 type="submit"
+                 disabled={!input.trim() || isStreaming}
+                 className="h-12 w-12 flex items-center justify-center bg-brand-600 hover:bg-brand-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-xl transition-all shadow-lg shadow-brand-500/20"
+               >
+                  {isStreaming ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
+               </button>
+            </form>
+         </div>
       </div>
     </div>
   );
