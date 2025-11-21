@@ -132,7 +132,7 @@ const App: React.FC = () => {
             <div>
               <h1 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Portal UFAL</h1>
               <div className="flex items-center gap-1.5 mt-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Online</p>
               </div>
             </div>
@@ -321,11 +321,11 @@ const App: React.FC = () => {
                    onChange={(e) => setAiContext(e.target.value)}
                  />
                </div>
-               <div className="mt-6 flex items-start gap-4 p-5 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/20">
-                  <div className="mt-1 text-blue-600 dark:text-blue-400"><GraduationCap className="w-6 h-6" /></div>
+               <div className="mt-6 flex items-start gap-4 p-5 bg-brand-50 dark:bg-brand-900/10 rounded-2xl border border-brand-100 dark:border-brand-900/20">
+                  <div className="mt-1 text-brand-600 dark:text-brand-400"><GraduationCap className="w-6 h-6" /></div>
                   <div>
-                    <p className="text-sm font-bold text-blue-700 dark:text-blue-300 mb-1">Como funciona?</p>
-                    <p className="text-xs text-blue-600/80 dark:text-blue-300/70 leading-relaxed">
+                    <p className="text-sm font-bold text-brand-700 dark:text-brand-300 mb-1">Como funciona?</p>
+                    <p className="text-xs text-brand-600/80 dark:text-brand-300/70 leading-relaxed">
                       A Inteligência Artificial usará este texto base para responder dúvidas. Além disso, ela lerá automaticamente as atividades do "Mural da Turma" para informar sobre datas de provas e entregas.
                     </p>
                   </div>

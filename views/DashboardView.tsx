@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical, Pencil } from 'lucide-react';
+import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical, Pencil, GraduationCap } from 'lucide-react';
 import { Activity, ActivityType, Attachment } from '../types';
 import { getActivities, addActivity, updateActivity, deleteActivity } from '../services/storageService';
 
@@ -126,33 +126,21 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
   const filteredActivities = activities.filter(a => filter === 'ALL' || a.type === filter);
 
-  // Color Helpers - MANTIDOS SEMANTICAMENTE para diferenciar Tipos de Atividade
+  // Color Helpers - UNIFICADOS PARA TEMA MONOCROMÁTICO (BRAND/RED)
+  // A distinção será feita apenas pelos ícones
   const getTypeStyle = (type: ActivityType) => {
+    const commonClasses = {
+      bg: 'bg-brand-50 dark:bg-brand-900/10',
+      text: 'text-brand-700 dark:text-brand-400',
+      border: 'border-brand-100 dark:border-brand-900/20',
+    };
+
     switch (type) {
-      case 'prova': return {
-        bg: 'bg-red-50 dark:bg-red-900/10',
-        text: 'text-red-600 dark:text-red-400',
-        border: 'border-red-100 dark:border-red-900/20',
-        icon: AlertCircle
-      };
-      case 'trabalho': return {
-        bg: 'bg-blue-50 dark:bg-blue-900/10',
-        text: 'text-blue-600 dark:text-blue-400',
-        border: 'border-blue-100 dark:border-blue-900/20',
-        icon: FileText
-      };
-      case 'atividade': return {
-        bg: 'bg-emerald-50 dark:bg-emerald-900/10',
-        text: 'text-emerald-600 dark:text-emerald-400',
-        border: 'border-emerald-100 dark:border-emerald-900/20',
-        icon: BookOpen
-      };
-      case 'aviso': return {
-        bg: 'bg-amber-50 dark:bg-amber-900/10',
-        text: 'text-amber-600 dark:text-amber-400',
-        border: 'border-amber-100 dark:border-amber-900/20',
-        icon: Clock
-      };
+      case 'prova': return { ...commonClasses, icon: AlertCircle };
+      case 'trabalho': return { ...commonClasses, icon: FileText };
+      case 'atividade': return { ...commonClasses, icon: BookOpen };
+      case 'aviso': return { ...commonClasses, icon: Clock };
+      default: return { ...commonClasses, icon: GraduationCap };
     }
   };
 
@@ -246,23 +234,23 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
           return (
             <div 
               key={item.id}
-              className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-7 border border-slate-100 dark:border-slate-800 shadow-[0_2px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-none dark:hover:bg-slate-800/50 transition-all duration-300 flex flex-col h-full hover:-translate-y-1"
+              className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-7 border border-slate-100 dark:border-slate-800 shadow-[0_2px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-none dark:hover:bg-slate-800/50 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 hover:border-brand-100 dark:hover:border-brand-900/30"
               style={{ animationDelay: `${idx * 50}ms` }}
             >
               {/* Top Row */}
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-3">
-                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${style.bg} ${style.text}`}>
+                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors group-hover:bg-brand-100 dark:group-hover:bg-brand-900/30 ${style.bg} ${style.text}`}>
                       <Icon className="w-6 h-6" />
                    </div>
                    <div>
-                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.type}</span>
+                      <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-brand-500 transition-colors">{item.type}</span>
                       <span className="text-sm font-bold text-slate-900 dark:text-white">{item.subject}</span>
                    </div>
                 </div>
                 
                 <div className="text-right">
-                   <span className="block text-xl font-extrabold text-slate-900 dark:text-white leading-none">{dateObj.day}</span>
+                   <span className="block text-xl font-extrabold text-slate-900 dark:text-white leading-none group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">{dateObj.day}</span>
                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{dateObj.month}</span>
                 </div>
               </div>
@@ -285,7 +273,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                  </div>
 
                  {item.attachment && (
-                   <a href={item.attachment.data} download={item.attachment.name} className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-900/30 dark:hover:text-brand-400 transition-colors" title="Baixar anexo">
+                   <a href={item.attachment.data} download={item.attachment.name} className="flex items-center gap-2 px-3 py-1.5 bg-brand-50 dark:bg-brand-900/10 rounded-lg text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 hover:text-brand-800 dark:hover:bg-brand-900/30 dark:hover:text-brand-200 transition-colors" title="Baixar anexo">
                       <Paperclip className="w-3.5 h-3.5" /> Anexo
                    </a>
                  )}
@@ -296,14 +284,14 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                 <div className="absolute top-5 right-5 flex items-center gap-1">
                   <button 
                     onClick={(e) => {e.stopPropagation(); handleEdit(item)}} 
-                    className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-100 hover:text-blue-600 hover:bg-blue-100 dark:bg-slate-800 dark:hover:bg-blue-900/30 dark:text-slate-400 transition-all shadow-sm"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-50 hover:text-brand-600 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 dark:text-slate-400 transition-all shadow-sm"
                     title="Editar"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={(e) => {e.stopPropagation(); handleDelete(item.id)}} 
-                    className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-100 hover:text-red-600 hover:bg-red-100 dark:bg-slate-800 dark:hover:bg-red-900/30 dark:text-slate-400 transition-all shadow-sm"
+                    className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-50 hover:text-brand-600 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 dark:text-slate-400 transition-all shadow-sm"
                     title="Excluir"
                   >
                     <Trash2 className="w-4 h-4" />
