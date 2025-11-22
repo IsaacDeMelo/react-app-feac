@@ -158,25 +158,21 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
   return (
     <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-100 dark:bg-slate-950">
-      {/* Hero Banner */}
-      <div className="relative w-full h-48 md:h-64 bg-brand-900 overflow-hidden shadow-lg md:rounded-bl-[3rem]">
-         <div className="absolute inset-0">
-            <img 
-              src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop" 
-              className="w-full h-full object-cover opacity-40 mix-blend-luminosity" 
-              alt="Campus" 
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-900 via-brand-900/60 to-transparent"></div>
-         </div>
+      {/* Hero Banner (Clean Version) */}
+      <div className="relative w-full h-40 md:h-56 bg-brand-700 shadow-lg md:rounded-bl-[3rem] overflow-hidden">
+         {/* Subtle Abstract Decoration */}
+         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+
          <div className="absolute bottom-0 left-0 w-full p-8 md:p-10">
             <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row justify-between items-end gap-6">
-               <div>
+               <div className="relative z-10">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[10px] font-bold uppercase tracking-widest mb-3">
                     <Calendar className="w-3 h-3" />
                     Ano Letivo 2024.1
                   </div>
                   <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2">Mural da Turma</h2>
-                  <p className="text-brand-200 text-sm font-medium max-w-md leading-relaxed">
+                  <p className="text-brand-100 text-sm font-medium max-w-md leading-relaxed">
                     Acompanhe datas de provas, entregas de trabalhos e avisos importantes centralizados aqui.
                   </p>
                </div>
@@ -184,7 +180,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                {isAdmin && (
                 <button 
                   onClick={handleOpenNew} 
-                  className="group flex items-center justify-center gap-2 bg-white text-brand-700 hover:bg-brand-50 px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-black/20 transition-all hover:scale-105 active:scale-95"
+                  className="group flex items-center justify-center gap-2 bg-white text-brand-700 hover:bg-brand-50 px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-black/20 transition-all hover:scale-105 active:scale-95 relative z-10"
                 >
                   <Plus className="w-5 h-5" />
                   <span>Nova Atividade</span>
