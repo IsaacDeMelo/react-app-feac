@@ -15,7 +15,7 @@ export const TutorView: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [activityCount, setActivityCount] = useState(0);
 
-  // Avatar da Luna - Atualizado (Ícone mais formal)
+  // Avatar da Luna
   const LUNA_AVATAR_URL = "https://img.icons8.com/?size=100&id=XwL1uwivrCEF&format=png&color=000000";
 
   useEffect(() => {
@@ -43,13 +43,13 @@ export const TutorView: React.FC = () => {
 
         // 5. Criar o Prompt de Sistema Robusto
         const systemContext = `
-        VOCÊ É A LUNA, A MONITORA VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e, PRINCIPALMENTE, sobre datas e prazos.
+        VOCÊ É A LUNA, A MONITORA VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e auxiliar com o cronograma.
         
         --- PERSONA ---
         Nome: Luna
         Gênero: Feminino
-        Tom de voz: Profissional, objetiva, educada e direta. Evite excesso de afetividade ou intimidade.
-        IMPORTANTE: Fale sempre no SINGULAR. Trate o usuário como "você" ou "aluno". NUNCA use "pessoal", "turma" ou "galera" para se dirigir ao usuário. A conversa é individual (1 para 1).
+        Tom de voz: Profissional e direta, porém simpática e prestativa. Use emojis pontuais para suavizar, mas mantenha a formalidade acadêmica. Seja "legal", mas não "melosa".
+        IMPORTANTE: Fale sempre no SINGULAR. Trate o usuário como "você" ou "aluno". NUNCA use "pessoal", "turma" ou "galera".
         
         --- HOJE ---
         Data atual: ${dateString} (Use isso para calcular "amanhã", "semana que vem", etc)
@@ -63,10 +63,9 @@ export const TutorView: React.FC = () => {
         ${aiConfig.context}
 
         --- REGRAS ---
-        1. Se o aluno perguntar "o que tem pra fazer?", liste as atividades futuras do mural de forma concisa.
-        2. Se o mural estiver vazio e perguntarem sobre datas, diga objetivamente que não há nada agendado.
-        3. Seja cordial, porém direta e concisa. Use Markdown para clareza (listas, negrito).
-        4. Evite saudações exageradas ou melosas. Vá direto ao ponto.
+        1. Se perguntarem "o que tem pra fazer?", liste as atividades futuras.
+        2. Se o mural estiver vazio, informe que não há nada agendado de forma amigável.
+        3. Responda de forma concisa e clara.
         `;
 
         chatSessionRef.current = createChatSession('gemini-2.5-flash', systemContext);
@@ -135,7 +134,7 @@ export const TutorView: React.FC = () => {
   return (
     <div className="flex flex-col h-full w-full relative bg-slate-50 dark:bg-slate-950">
       
-      {/* Context Badge - Absolute Positioned inside the Relative Container */}
+      {/* Context Badge */}
       <div className="absolute top-4 left-0 right-0 z-10 flex justify-center pointer-events-none opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
             <CalendarCheck className="w-3 h-3 text-green-500" />
@@ -145,7 +144,7 @@ export const TutorView: React.FC = () => {
          </div>
       </div>
 
-      {/* Chat Area - This is the scrollable part */}
+      {/* Chat Area */}
       <div className="flex-1 overflow-y-auto px-4 space-y-6 custom-scrollbar py-16">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in mt-10">
@@ -159,7 +158,7 @@ export const TutorView: React.FC = () => {
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Luna</h2>
             <p className="text-slate-500 dark:text-slate-400 text-center max-w-[280px] text-sm leading-relaxed">
-              Olá. Eu sou a Luna, sua monitora virtual. Estou aqui para auxiliar com datas, prazos e dúvidas acadêmicas.
+              Olá! Eu sou a Luna, sua monitora virtual. Estou aqui para te ajudar com as datas, provas e conteúdo da disciplina.
             </p>
             
             <div className="mt-10 grid grid-cols-1 gap-3 w-full max-w-xs">
@@ -178,10 +177,10 @@ export const TutorView: React.FC = () => {
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex w-full gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}>
             
-            {/* Avatar Bot Small */}
+            {/* Avatar Bot - Increased Size */}
             {msg.role === 'model' && (
-              <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-sm overflow-hidden p-1.5">
-                <img src={LUNA_AVATAR_URL} alt="Luna" className="w-full h-full object-contain opacity-80" />
+              <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-sm overflow-hidden p-2">
+                <img src={LUNA_AVATAR_URL} alt="Luna" className="w-full h-full object-contain opacity-90" />
               </div>
             )}
 
@@ -214,7 +213,7 @@ export const TutorView: React.FC = () => {
         <div ref={messagesEndRef} className="h-2" />
       </div>
 
-      {/* Input Area - Now part of the flex column, not fixed to window */}
+      {/* Input Area */}
       <div className="p-4 bg-slate-50 dark:bg-slate-950 z-30 border-t border-slate-100 dark:border-slate-800">
          <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
             <textarea

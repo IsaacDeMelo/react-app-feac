@@ -21,7 +21,7 @@ import { getAiConfig, saveAiConfig } from './services/storageService';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.DASHBOARD);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true); // Dark mode default: true
   
   // Auth & Settings
   const [isAdmin, setIsAdmin] = useState(false);
@@ -122,11 +122,11 @@ const App: React.FC = () => {
       <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl">
         <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
-            <div className="p-2 bg-white rounded-xl shadow-md border border-slate-100">
+            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl shadow-md border border-slate-100 flex-shrink-0">
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
                 alt="UFAL Logo" 
-                className="w-10 h-auto object-contain"
+                className="w-9 h-auto object-contain"
               />
             </div>
             <div>
@@ -189,13 +189,22 @@ const App: React.FC = () => {
       <main className="flex-1 h-full w-full bg-slate-50 dark:bg-slate-950 relative">
         
         {/* Mobile Top Bar (Fixed Height: 80px) */}
-        <header className="md:hidden absolute top-0 left-0 right-0 h-20 z-50 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2rem] transition-all">
-          <div className="flex items-center gap-4">
-             <div className="bg-white p-2 rounded-2xl shadow-lg shadow-black/10">
+        <header className="md:hidden absolute top-0 left-0 right-0 h-28 z-50 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
+          {/* Abstract Background Image */}
+          <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
+             <img 
+               src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop" 
+               className="w-full h-full object-cover"
+             />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-900/30 pointer-events-none"></div>
+
+          <div className="flex items-center gap-4 relative z-10">
+             <div className="w-12 h-12 flex items-center justify-center bg-white p-2 rounded-2xl shadow-lg shadow-black/10 flex-shrink-0">
                <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
                   alt="UFAL" 
-                  className="w-8 h-auto object-contain"
+                  className="w-full h-full object-contain"
                />
              </div>
              <div>
@@ -204,7 +213,7 @@ const App: React.FC = () => {
              </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 relative z-10">
             <button 
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md hover:bg-white/20 transition-colors"
@@ -235,7 +244,7 @@ const App: React.FC = () => {
           On Mobile: Positioned absolutely between Header (top-20) and Nav (bottom-20).
           On Desktop: Fills the remaining space naturally.
         */}
-        <div className="absolute top-20 bottom-20 left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div className="absolute top-28 bottom-20 left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
