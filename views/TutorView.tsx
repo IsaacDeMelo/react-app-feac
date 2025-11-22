@@ -214,10 +214,10 @@ export const TutorView: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-950 z-30 border-t border-slate-100 dark:border-slate-800">
+      <div className="p-2 bg-slate-50 dark:bg-slate-950 z-30 border-t border-slate-100 dark:border-slate-800">
          <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
             <textarea
-               className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-3.5 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[52px] text-base"
+               className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-2.5 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[52px] text-base"
                placeholder="Digite sua mensagem para Luna..."
                value={input}
                onChange={e => setInput(e.target.value)}

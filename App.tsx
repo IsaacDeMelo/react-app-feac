@@ -243,11 +243,10 @@ const App: React.FC = () => {
 
         {/* 
           SCROLLABLE VIEWPORT 
-          FIX: Removed complex absolute positioning. 
-          Now using simple padding-top (header) and padding-bottom (nav) with full height scroll.
-          This is more robust on mobile.
+          FIX: Removed +1rem padding-bottom to close gap between content and nav.
+          Changed overflow-y-auto to overflow-hidden, because the inner Views (Dashboard/Tutor) handle their own scrolling.
         */}
-        <div className="h-full w-full overflow-y-auto bg-slate-50 dark:bg-slate-950 pt-28 pb-[calc(5rem+env(safe-area-inset-bottom)+1rem)] md:pt-0 md:pb-0 custom-scrollbar">
+        <div className="h-full w-full overflow-hidden bg-slate-50 dark:bg-slate-950 pt-28 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pt-0 md:pb-0">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
