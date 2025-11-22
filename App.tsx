@@ -181,15 +181,15 @@ const App: React.FC = () => {
                 </button>
              )}
           </div>
-          <p className="text-[10px] text-center text-slate-400 font-medium">v2.1.0 • Portal Acadêmico</p>
+          <p className="text-[10px] text-center text-slate-400 font-medium">v2.1.1 • Portal Acadêmico</p>
         </div>
       </aside>
 
       {/* --- Main Content Area --- */}
-      <main className="flex-1 relative h-full w-full flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
+      <main className="flex-1 h-full w-full bg-slate-50 dark:bg-slate-950 relative">
         
-        {/* Mobile Top Bar (Fixed & Improved with Brand Color) */}
-        <header className="md:hidden fixed top-0 left-0 right-0 h-24 z-40 px-6 flex items-center justify-between transition-all shadow-lg bg-brand-700 rounded-b-[2rem]">
+        {/* Mobile Top Bar (Fixed Height: 80px) */}
+        <header className="md:hidden absolute top-0 left-0 right-0 h-20 z-50 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2rem] transition-all">
           <div className="flex items-center gap-4">
              <div className="bg-white p-2 rounded-2xl shadow-lg shadow-black/10">
                <img 
@@ -230,8 +230,12 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Scrollable Content - PADDING FIX FOR MOBILE */}
-        <div className="flex-1 h-full overflow-y-auto custom-scrollbar md:p-0 pt-28 pb-28">
+        {/* 
+          SCROLLABLE VIEWPORT 
+          On Mobile: Positioned absolutely between Header (top-20) and Nav (bottom-20).
+          On Desktop: Fills the remaining space naturally.
+        */}
+        <div className="absolute top-20 bottom-20 left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
@@ -239,8 +243,8 @@ const App: React.FC = () => {
            )}
         </div>
         
-        {/* Mobile Bottom Nav (Fixed & Improved) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-24 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-50 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
+        {/* Mobile Bottom Nav (Fixed Height: 80px) */}
+        <nav className="md:hidden absolute bottom-0 left-0 right-0 h-20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
           <NavItemMobile mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor" />
         </nav>

@@ -124,10 +124,10 @@ export const TutorView: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full relative bg-slate-50 dark:bg-slate-950">
+    <div className="flex flex-col h-full w-full relative bg-slate-50 dark:bg-slate-950">
       
-      {/* Context Badge */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex justify-center pointer-events-none pt-4 opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
+      {/* Context Badge - Absolute Positioned inside the Relative Container */}
+      <div className="absolute top-4 left-0 right-0 z-10 flex justify-center pointer-events-none opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
             <CalendarCheck className="w-3 h-3 text-green-500" />
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
@@ -136,10 +136,10 @@ export const TutorView: React.FC = () => {
          </div>
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6 custom-scrollbar pt-16">
+      {/* Chat Area - This is the scrollable part */}
+      <div className="flex-1 overflow-y-auto px-4 space-y-6 custom-scrollbar py-16">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in">
+          <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in mt-10">
             <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative">
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 border-4 border-slate-50 dark:border-slate-950 rounded-full"></div>
               <Bot className="w-10 h-10 text-brand-600 dark:text-brand-400" />
@@ -191,11 +191,11 @@ export const TutorView: React.FC = () => {
             </div>
           </div>
         ))}
-        <div ref={messagesEndRef} className="h-4" />
+        <div ref={messagesEndRef} className="h-2" />
       </div>
 
-      {/* Fixed Input Area */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-950 z-30 sticky bottom-0">
+      {/* Input Area - Now part of the flex column, not fixed to window */}
+      <div className="p-4 bg-slate-50 dark:bg-slate-950 z-30 border-t border-slate-100 dark:border-slate-800">
          <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
             <textarea
                className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-3.5 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[52px] text-base"
