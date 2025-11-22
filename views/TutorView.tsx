@@ -41,7 +41,12 @@ export const TutorView: React.FC = () => {
 
         // 5. Criar o Prompt de Sistema Robusto
         const systemContext = `
-        VOCÊ É O MONITOR VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e, PRINCIPALMENTE, sobre datas e prazos.
+        VOCÊ É A LUNA, A MONITORA VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e, PRINCIPALMENTE, sobre datas e prazos.
+        
+        --- PERSONA ---
+        Nome: Luna
+        Gênero: Feminino
+        Tom de voz: Informal, amiga, prestativa e direta.
         
         --- HOJE ---
         Data atual: ${dateString} (Use isso para calcular "amanhã", "semana que vem", etc)
@@ -118,7 +123,7 @@ export const TutorView: React.FC = () => {
     return (
       <div className="flex flex-col h-full items-center justify-center bg-slate-50 dark:bg-slate-950 gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-brand-600" />
-        <p className="text-slate-500 text-sm animate-pulse">Lendo o mural da turma...</p>
+        <p className="text-slate-500 text-sm animate-pulse">Conectando com a Luna...</p>
       </div>
     );
   }
@@ -144,9 +149,9 @@ export const TutorView: React.FC = () => {
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 border-4 border-slate-50 dark:border-slate-950 rounded-full"></div>
               <Bot className="w-10 h-10 text-brand-600 dark:text-brand-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Monitor Virtual</h2>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Luna</h2>
             <p className="text-slate-500 dark:text-slate-400 text-center max-w-[280px] text-sm leading-relaxed">
-              Estou conectado ao mural da turma. Pergunte sobre datas, prazos ou tire dúvidas da matéria.
+              Olá! Eu sou a Luna, sua monitora virtual. Pergunte sobre datas, prazos ou tire dúvidas da matéria.
             </p>
             
             <div className="mt-10 grid grid-cols-1 gap-3 w-full max-w-xs">
