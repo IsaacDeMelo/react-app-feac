@@ -73,14 +73,14 @@ const App: React.FC = () => {
       <button
         onClick={() => setCurrentView(mode)}
         className={`
-          w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-all duration-300 group border relative overflow-hidden
+          w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-all duration-300 group border
           ${isActive 
             ? 'bg-brand-50 text-brand-900 border-brand-100 dark:bg-brand-900/20 dark:text-white dark:border-brand-800 shadow-sm' 
             : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-800 dark:hover:bg-slate-800'
           }
         `}
       >
-        <div className="relative z-10 flex items-center gap-4">
+        <div className="flex items-center gap-4">
           <div className={`p-2.5 rounded-xl transition-colors ${isActive ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
             <Icon className="w-5 h-5" strokeWidth={2} />
           </div>
@@ -89,7 +89,7 @@ const App: React.FC = () => {
             <span className={`text-xs ${isActive ? 'text-brand-600/80 dark:text-brand-300' : 'text-slate-400'}`}>{desc}</span>
           </div>
         </div>
-        {isActive && <ChevronRight className="w-4 h-4 text-brand-400 relative z-10" />}
+        {isActive && <ChevronRight className="w-4 h-4 text-brand-400" />}
       </button>
     );
   };
@@ -119,11 +119,8 @@ const App: React.FC = () => {
     <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
       
       {/* --- Desktop Sidebar --- */}
-      <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/80 dark:bg-slate-900/80 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl relative">
-         {/* Background Texture for Sidebar */}
-         <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: `url("https://www.transparenttextures.com/patterns/cubes.png")` }}></div>
-        
-        <div className="p-8 relative z-10">
+      <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl">
+        <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
             <div className="p-2 bg-white rounded-xl shadow-md border border-slate-100">
               <img 
@@ -147,8 +144,8 @@ const App: React.FC = () => {
           </nav>
         </div>
 
-        <div className="mt-auto p-6 space-y-4 relative z-10">
-          <div className="p-4 rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm backdrop-blur-sm">
+        <div className="mt-auto p-6 space-y-4">
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
              <div className="flex items-center justify-between mb-4">
                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sistema</span>
                <button 
@@ -184,70 +181,61 @@ const App: React.FC = () => {
                 </button>
              )}
           </div>
-          <p className="text-[10px] text-center text-slate-400 font-medium">v2.2.0 • Portal Acadêmico</p>
+          <p className="text-[10px] text-center text-slate-400 font-medium">v2.1.1 • Portal Acadêmico</p>
         </div>
       </aside>
 
       {/* --- Main Content Area --- */}
       <main className="flex-1 h-full w-full bg-slate-50 dark:bg-slate-950 relative">
         
-        {/* Mobile Top Bar (Increased height: h-28) */}
-        <header className="md:hidden absolute top-0 left-0 right-0 h-28 z-50 shadow-xl bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
-           {/* Header Background Image */}
-           <img 
-             src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop" 
-             alt="Header BG" 
-             className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay"
-           />
-           <div className="absolute inset-0 bg-gradient-to-b from-brand-800/50 to-brand-900/90"></div>
-
-           <div className="relative z-10 px-6 h-full flex items-center justify-between pt-2">
-            <div className="flex items-center gap-4">
-              <div className="bg-white p-2.5 rounded-2xl shadow-lg shadow-black/20">
-                <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
-                    alt="UFAL" 
-                    className="w-9 h-auto object-contain"
-                />
-              </div>
-              <div>
-                <span className="block font-black text-white text-xl leading-none tracking-tight drop-shadow-sm">UFAL</span>
-                <span className="text-[11px] font-bold text-brand-100 uppercase tracking-widest opacity-90">Portal Acadêmico</span>
-              </div>
-            </div>
+        {/* Mobile Top Bar (Fixed Height: 80px) */}
+        <header className="md:hidden absolute top-0 left-0 right-0 h-20 z-50 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2rem] transition-all">
+          <div className="flex items-center gap-4">
+             <div className="bg-white p-2 rounded-2xl shadow-lg shadow-black/10">
+               <img 
+                  src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
+                  alt="UFAL" 
+                  className="w-8 h-auto object-contain"
+               />
+             </div>
+             <div>
+               <span className="block font-extrabold text-white text-lg leading-none tracking-tight">UFAL</span>
+               <span className="text-[10px] font-bold text-brand-100 uppercase tracking-widest opacity-90">Portal Acadêmico</span>
+             </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md hover:bg-white/20 transition-colors"
+            >
+              {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
             
-            <div className="flex items-center gap-2">
+            {isAdmin ? (
               <button 
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md hover:bg-white/20 transition-colors border border-white/10"
+                onClick={() => setShowSettingsModal(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-brand-700 shadow-lg shadow-black/10 hover:bg-slate-50 transition-colors"
               >
-                {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                <Settings className="w-5 h-5" />
               </button>
-              
-              {isAdmin ? (
-                <button 
-                  onClick={() => setShowSettingsModal(true)}
-                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-brand-700 shadow-lg shadow-black/10 hover:bg-slate-50 transition-colors"
-                >
-                  <Settings className="w-5 h-5" />
-                </button>
-              ) : (
-                <button 
-                  onClick={() => setShowLoginModal(true)}
-                  className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md hover:bg-white/20 transition-colors border border-white/10"
-                >
-                  <Lock className="w-5 h-5" />
-                </button>
-              )}
-            </div>
+            ) : (
+              <button 
+                onClick={() => setShowLoginModal(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 text-white backdrop-blur-md hover:bg-white/20 transition-colors"
+              >
+                <Lock className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </header>
 
         {/* 
           SCROLLABLE VIEWPORT 
-          Mobile: Positioned absolutely between Header (top-28) and Nav (bottom-20).
+          On Mobile: Positioned absolutely between Header (top-20) and Nav (bottom-20).
+          On Desktop: Fills the remaining space naturally.
         */}
-        <div className="absolute top-28 bottom-20 left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div className="absolute top-20 bottom-20 left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (

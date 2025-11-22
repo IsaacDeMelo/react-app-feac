@@ -126,11 +126,6 @@ export const TutorView: React.FC = () => {
   return (
     <div className="flex flex-col h-full w-full relative bg-slate-50 dark:bg-slate-950">
       
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
-           style={{ backgroundImage: 'radial-gradient(#3b82f6 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
-      </div>
-
       {/* Context Badge - Absolute Positioned inside the Relative Container */}
       <div className="absolute top-4 left-0 right-0 z-10 flex justify-center pointer-events-none opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
@@ -142,10 +137,10 @@ export const TutorView: React.FC = () => {
       </div>
 
       {/* Chat Area - This is the scrollable part */}
-      <div className="flex-1 overflow-y-auto px-4 space-y-6 custom-scrollbar py-16 relative z-0">
+      <div className="flex-1 overflow-y-auto px-4 space-y-6 custom-scrollbar py-16">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in mt-10">
-            <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-brand-500/10 dark:shadow-none border border-slate-100 dark:border-slate-800 relative">
+            <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative">
               <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 border-4 border-slate-50 dark:border-slate-950 rounded-full"></div>
               <Bot className="w-10 h-10 text-brand-600 dark:text-brand-400" />
             </div>
