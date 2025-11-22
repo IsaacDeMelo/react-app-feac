@@ -116,11 +116,12 @@ const App: React.FC = () => {
   };
 
   return (
-    // FIX: h-[100dvh] ensures correct viewport height on mobile browsers
-    <div className="flex h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
+    // CONTAINER PRINCIPAL: Flex Layout (Row Desktop, Column Mobile)
+    // h-[100dvh] garante altura total da viewport dinâmica
+    <div className="flex md:flex-row flex-col h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
       
-      {/* --- Desktop Sidebar --- */}
-      <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl">
+      {/* --- Desktop Sidebar (Fixed Width) --- */}
+      <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl shrink-0">
         <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
             <div className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl shadow-md border border-slate-100 flex-shrink-0 aspect-square">
@@ -186,11 +187,13 @@ const App: React.FC = () => {
         </div>
       </aside>
 
-      {/* --- Main Content Area --- */}
-      <main className="flex-1 h-full w-full bg-slate-50 dark:bg-slate-950 relative">
+      {/* --- Main Content Container --- */}
+      {/* On Mobile, this acts as the vertical flex container for Header -> Content -> Nav */}
+      <main className="flex-1 flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
         
-        {/* Mobile Top Bar (Fixed Height: 28 / 112px) */}
-        <header className="md:hidden fixed top-0 left-0 right-0 h-28 z-[60] px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
+        {/* Mobile Header (Part of Flex Flow) */}
+        {/* Removed 'fixed', added 'shrink-0' to prevent squishing */}
+        <header className="md:hidden shrink-0 h-28 relative z-20 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
           {/* Abstract Background Image */}
           <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
              <img 
@@ -241,11 +244,11 @@ const App: React.FC = () => {
         </header>
 
         {/* 
-          SCROLLABLE VIEWPORT 
-          FIX: Using absolute positioning on mobile to anchor the view STRICTLY between Header (top-28) and Nav (bottom-20).
-          This prevents layout jumps and gaps caused by padding-bottom reliance.
+          Dynamic Content Area (Flex Grow) 
+          Occupies all remaining space between Header and Bottom Nav.
+          Handles its own internal scrolling.
         */}
-        <div className="absolute top-28 bottom-[calc(5rem+env(safe-area-inset-bottom))] left-0 right-0 md:relative md:top-0 md:bottom-0 md:h-full overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div className="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
@@ -254,10 +257,10 @@ const App: React.FC = () => {
         </div>
         
         {/* 
-          Mobile Bottom Nav 
-          Fixed at bottom with z-index above content
+          Mobile Bottom Nav (Part of Flex Flow)
+          Removed 'fixed', added 'shrink-0' and safe-area padding.
         */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-[60] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
+        <nav className="md:hidden shrink-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
           <NavItemMobile mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor" />
         </nav>
