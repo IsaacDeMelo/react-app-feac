@@ -116,7 +116,7 @@ const App: React.FC = () => {
   };
 
   return (
-    // FIX: mudamos h-screen para h-[100dvh] para corrigir a altura em mobile browsers
+    // FIX: h-[100dvh] ensures correct viewport height on mobile browsers
     <div className="flex h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
       
       {/* --- Desktop Sidebar --- */}
@@ -190,7 +190,6 @@ const App: React.FC = () => {
       <main className="flex-1 h-full w-full bg-slate-50 dark:bg-slate-950 relative">
         
         {/* Mobile Top Bar (Fixed Height: 28 / 112px) */}
-        {/* FIX: Changed to fixed positioning to stay pinned on scroll */}
         <header className="md:hidden fixed top-0 left-0 right-0 h-28 z-[60] px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
           {/* Abstract Background Image */}
           <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
@@ -243,10 +242,10 @@ const App: React.FC = () => {
 
         {/* 
           SCROLLABLE VIEWPORT 
-          FIX: Removed +1rem padding-bottom to close gap between content and nav.
-          Changed overflow-y-auto to overflow-hidden, because the inner Views (Dashboard/Tutor) handle their own scrolling.
+          FIX: Using absolute positioning on mobile to anchor the view STRICTLY between Header (top-28) and Nav (bottom-20).
+          This prevents layout jumps and gaps caused by padding-bottom reliance.
         */}
-        <div className="h-full w-full overflow-hidden bg-slate-50 dark:bg-slate-950 pt-28 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pt-0 md:pb-0">
+        <div className="absolute top-28 bottom-[calc(5rem+env(safe-area-inset-bottom))] left-0 right-0 md:relative md:top-0 md:bottom-0 md:h-full overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
@@ -256,8 +255,7 @@ const App: React.FC = () => {
         
         {/* 
           Mobile Bottom Nav 
-          FIX: Changed to 'fixed' positioning to ensure it stays on screen regardless of scroll parent.
-          Added z-[60] to stay above content.
+          Fixed at bottom with z-index above content
         */}
         <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-[60] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
