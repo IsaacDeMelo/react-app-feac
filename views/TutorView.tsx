@@ -15,8 +15,8 @@ export const TutorView: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [activityCount, setActivityCount] = useState(0);
 
-  // Avatar da Luna - Atualizado
-  const LUNA_AVATAR_URL = "https://img.icons8.com/?size=100&id=23318&format=png&color=000000";
+  // Avatar da Luna - Atualizado (Ícone mais formal)
+  const LUNA_AVATAR_URL = "https://img.icons8.com/?size=100&id=XwL1uwivrCEF&format=png&color=000000";
 
   useEffect(() => {
     const initChat = async () => {
@@ -48,7 +48,7 @@ export const TutorView: React.FC = () => {
         --- PERSONA ---
         Nome: Luna
         Gênero: Feminino
-        Tom de voz: Informal, carinhosa, amiga, prestativa e direta.
+        Tom de voz: Profissional, objetiva, educada e direta. Evite excesso de afetividade ou intimidade.
         IMPORTANTE: Fale sempre no SINGULAR. Trate o usuário como "você" ou "aluno". NUNCA use "pessoal", "turma" ou "galera" para se dirigir ao usuário. A conversa é individual (1 para 1).
         
         --- HOJE ---
@@ -63,10 +63,10 @@ export const TutorView: React.FC = () => {
         ${aiConfig.context}
 
         --- REGRAS ---
-        1. Se o aluno perguntar "o que tem pra fazer?", liste as atividades futuras do mural.
-        2. Se o mural estiver vazio e perguntarem sobre datas, diga que não há nada agendado.
-        3. Seja cordial, claro e use Markdown para negrito e listas.
-        4. Inicie a conversa de forma acolhedora, mas individualizada.
+        1. Se o aluno perguntar "o que tem pra fazer?", liste as atividades futuras do mural de forma concisa.
+        2. Se o mural estiver vazio e perguntarem sobre datas, diga objetivamente que não há nada agendado.
+        3. Seja cordial, porém direta e concisa. Use Markdown para clareza (listas, negrito).
+        4. Evite saudações exageradas ou melosas. Vá direto ao ponto.
         `;
 
         chatSessionRef.current = createChatSession('gemini-2.5-flash', systemContext);
@@ -159,7 +159,7 @@ export const TutorView: React.FC = () => {
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Luna</h2>
             <p className="text-slate-500 dark:text-slate-400 text-center max-w-[280px] text-sm leading-relaxed">
-              Olá, aluno! Eu sou a Luna. Estou aqui para te ajudar com as datas e matérias.
+              Olá. Eu sou a Luna, sua monitora virtual. Estou aqui para auxiliar com datas, prazos e dúvidas acadêmicas.
             </p>
             
             <div className="mt-10 grid grid-cols-1 gap-3 w-full max-w-xs">
