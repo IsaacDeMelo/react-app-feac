@@ -117,14 +117,15 @@ const App: React.FC = () => {
 
   return (
     // CONTAINER PRINCIPAL: Flex Layout (Row Desktop, Column Mobile)
-    // h-[100dvh] garante altura total da viewport dinâmica
-    <div className="flex md:flex-row flex-col h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
+    // FIXED INSET-0: O "Nuclear option" para layouts mobile. Previne que o container mude de tamanho
+    // ou pule quando o teclado abre/fecha de forma errática.
+    <div className="fixed inset-0 flex md:flex-row flex-col w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
       
       {/* --- Desktop Sidebar (Fixed Width) --- */}
       <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl shrink-0">
         <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl shadow-md border border-slate-100 flex-shrink-0 aspect-square">
+            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-xl shadow-md border border-slate-100 flex-shrink-0 aspect-square">
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
                 alt="UFAL Logo" 
@@ -188,13 +189,10 @@ const App: React.FC = () => {
       </aside>
 
       {/* --- Main Content Container --- */}
-      {/* On Mobile, this acts as the vertical flex container for Header -> Content -> Nav */}
       <main className="flex-1 flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
         
-        {/* Mobile Header (Part of Flex Flow) */}
-        {/* Removed 'fixed', added 'shrink-0' to prevent squishing */}
+        {/* Mobile Header */}
         <header className="md:hidden shrink-0 h-28 relative z-20 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
-          {/* Abstract Background Image */}
           <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
              <img 
                src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop" 
@@ -204,7 +202,7 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-900/30 pointer-events-none"></div>
 
           <div className="flex items-center gap-4 relative z-10">
-             <div className="w-12 h-12 flex items-center justify-center bg-white p-2 rounded-2xl shadow-lg shadow-black/10 flex-shrink-0 aspect-square">
+             <div className="w-12 h-12 flex items-center justify-center bg-white p-2 rounded-xl shadow-lg shadow-black/10 flex-shrink-0 aspect-square">
                <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
                   alt="UFAL" 
@@ -243,11 +241,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* 
-          Dynamic Content Area (Flex Grow) 
-          Occupies all remaining space between Header and Bottom Nav.
-          Handles its own internal scrolling.
-        */}
+        {/* Dynamic Content Area (Flex 1 - Occupies remaining space) */}
         <div className="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
@@ -256,10 +250,7 @@ const App: React.FC = () => {
            )}
         </div>
         
-        {/* 
-          Mobile Bottom Nav (Part of Flex Flow)
-          Removed 'fixed', added 'shrink-0' and safe-area padding.
-        */}
+        {/* Mobile Bottom Nav */}
         <nav className="md:hidden shrink-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
           <NavItemMobile mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor" />
@@ -316,7 +307,6 @@ const App: React.FC = () => {
             </div>
             <div className="p-8 flex-1 overflow-y-auto bg-white dark:bg-slate-950">
                
-               {/* Logout Section for Mobile within Modal */}
                <div className="md:hidden mb-8 p-5 bg-brand-50 dark:bg-brand-900/10 rounded-2xl border border-brand-100 dark:border-brand-900/20 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-brand-100 dark:bg-brand-900/30 rounded-lg text-brand-600">
