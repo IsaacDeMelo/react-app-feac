@@ -160,24 +160,43 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
     <div className="h-full w-full overflow-y-auto custom-scrollbar">
       <div className="px-6 py-8 md:px-10 w-full max-w-7xl mx-auto">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Mural da Turma</h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">
-              Acompanhe o calendário acadêmico e não perca prazos.
-            </p>
-          </div>
-          
-          {isAdmin && (
-            <button 
-              onClick={handleOpenNew} 
-              className="group flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-brand-900/20 transition-all hover:scale-105 active:scale-95"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Nova Atividade</span>
-            </button>
-          )}
+        {/* HERO HEADER BANNER */}
+        <div className="relative rounded-[2.5rem] overflow-hidden mb-10 shadow-2xl shadow-brand-900/20 group">
+           {/* Background Image */}
+           <div className="absolute inset-0 transform group-hover:scale-105 transition-transform duration-700">
+             <img 
+               src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop" 
+               alt="University" 
+               className="w-full h-full object-cover"
+             />
+             {/* Overlay Gradient */}
+             <div className="absolute inset-0 bg-gradient-to-r from-brand-900/95 via-brand-800/80 to-brand-900/40 mix-blend-multiply"></div>
+             <div className="absolute inset-0 bg-brand-900/30"></div>
+           </div>
+
+           <div className="relative z-10 p-8 md:p-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div className="max-w-xl">
+                <div className="flex items-center gap-2 mb-2">
+                   <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest">Semestre 2025.1</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight mb-4 drop-shadow-md">
+                  Mural da Turma
+                </h2>
+                <p className="text-brand-100 text-sm md:text-base font-medium leading-relaxed max-w-md opacity-90">
+                  Centralize suas provas, trabalhos e avisos. Acompanhe o calendário acadêmico e não perca prazos importantes.
+                </p>
+              </div>
+              
+              {isAdmin && (
+                <button 
+                  onClick={handleOpenNew} 
+                  className="flex items-center justify-center gap-2 bg-white hover:bg-brand-50 text-brand-700 px-6 py-4 rounded-2xl font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Nova Atividade</span>
+                </button>
+              )}
+           </div>
         </div>
 
         {/* Filter Pills - UNIFICADOS COM BRAND COLOR */}
@@ -209,12 +228,12 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
         {/* Empty State */}
         {!loading && filteredActivities.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-32 px-4 text-center animate-fade-in bg-white dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
-            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-              <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+          <div className="flex flex-col items-center justify-center py-32 px-4 text-center animate-fade-in bg-white dark:bg-slate-900/50 rounded-[2.5rem] border border-dashed border-slate-200 dark:border-slate-800">
+            <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <Calendar className="w-10 h-10 text-slate-300 dark:text-slate-600" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Tudo tranquilo por aqui</h3>
-            <p className="text-slate-500 max-w-xs mx-auto text-sm">Nenhuma atividade cadastrada para esta categoria.</p>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Tudo tranquilo por aqui</h3>
+            <p className="text-slate-500 max-w-xs mx-auto text-sm">Nenhuma atividade cadastrada para esta categoria no momento.</p>
           </div>
         )}
 
