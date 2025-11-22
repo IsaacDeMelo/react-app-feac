@@ -124,7 +124,7 @@ export const TutorView: React.FC = () => {
 
   if (isInitializing) {
     return (
-      <div className="flex flex-col h-full items-center justify-center bg-slate-50 dark:bg-slate-950 gap-4">
+      <div className="flex flex-col h-full items-center justify-center bg-slate-100 dark:bg-slate-950 gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-brand-600" />
         <p className="text-slate-500 text-sm animate-pulse">Conectando com a Luna...</p>
       </div>
@@ -132,7 +132,7 @@ export const TutorView: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full w-full relative bg-slate-50 dark:bg-slate-950">
+    <div className="flex flex-col h-full w-full relative bg-slate-100 dark:bg-slate-950">
       
       {/* Context Badge */}
       <div className="absolute top-4 left-0 right-0 z-10 flex justify-center pointer-events-none opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
@@ -162,11 +162,11 @@ export const TutorView: React.FC = () => {
             </p>
             
             <div className="mt-10 grid grid-cols-1 gap-3 w-full max-w-xs">
-               <button onClick={() => setInput("O que temos agendado para esta semana?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
+               <button onClick={() => setInput("O que temos agendado para esta semana?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3 shadow-sm">
                  <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><CalendarCheck className="w-4 h-4" /></span>
                  O que tenho agendado para essa semana?
                </button>
-               <button onClick={() => setInput("Quais são as regras para o trabalho final?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
+               <button onClick={() => setInput("Quais são as regras para o trabalho final?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3 shadow-sm">
                  <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><Bot className="w-4 h-4" /></span>
                  Quais as regras do trabalho?
                </button>
@@ -194,7 +194,7 @@ export const TutorView: React.FC = () => {
                  relative px-5 py-4 text-[15px] leading-relaxed shadow-sm
                  ${msg.role === 'user' 
                    ? 'bg-brand-600 text-white rounded-[1.2rem] rounded-br-sm' 
-                   : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-[1.2rem] rounded-bl-sm'
+                   : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-[1.2rem] rounded-bl-sm'
                  }
                `}>
                  {msg.isLoading && !msg.text ? (
@@ -214,8 +214,8 @@ export const TutorView: React.FC = () => {
       </div>
 
       {/* Input Area */}
-      <div className="p-2 bg-slate-50 dark:bg-slate-950 z-30 border-t border-slate-100 dark:border-slate-800">
-         <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
+      <div className="p-2 bg-slate-100 dark:bg-slate-950 z-30 border-t border-slate-200 dark:border-slate-800">
+         <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-200 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
             <textarea
                className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-2.5 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[52px] text-base"
                placeholder="Digite sua mensagem para Luna..."

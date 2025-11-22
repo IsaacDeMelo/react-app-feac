@@ -12,15 +12,16 @@ import {
   X,
   Save,
   GraduationCap,
-  Menu,
+  Home,
   ChevronRight
 } from 'lucide-react';
 import { DashboardView } from './views/DashboardView';
 import { TutorView } from './views/TutorView';
+import { HomeView } from './views/HomeView';
 import { getAiConfig, saveAiConfig } from './services/storageService';
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.DASHBOARD);
+  const [currentView, setCurrentView] = useState<ViewMode>(ViewMode.HOME);
   const [isDarkMode, setIsDarkMode] = useState(true); // Dark mode default: true
   
   // Auth & Settings
@@ -73,15 +74,15 @@ const App: React.FC = () => {
       <button
         onClick={() => setCurrentView(mode)}
         className={`
-          w-full flex items-center justify-between px-4 py-4 rounded-2xl transition-all duration-300 group border
+          w-full flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group border
           ${isActive 
             ? 'bg-brand-50 text-brand-900 border-brand-100 dark:bg-brand-900/20 dark:text-white dark:border-brand-800 shadow-sm' 
-            : 'bg-white text-slate-600 border-slate-100 hover:border-slate-200 hover:bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400 dark:border-slate-800 dark:hover:bg-slate-800'
+            : 'bg-transparent text-slate-600 border-transparent hover:bg-slate-50 hover:border-slate-200 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:border-slate-700'
           }
         `}
       >
         <div className="flex items-center gap-4">
-          <div className={`p-2.5 rounded-xl transition-colors ${isActive ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'}`}>
+          <div className={`p-2 rounded-xl transition-colors ${isActive ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 group-hover:text-brand-500'}`}>
             <Icon className="w-5 h-5" strokeWidth={2} />
           </div>
           <div className="text-left">
@@ -105,9 +106,9 @@ const App: React.FC = () => {
         `}
       >
         {isActive && (
-          <span className="absolute -top-0.5 w-12 h-1 bg-brand-600 dark:bg-brand-400 rounded-b-xl shadow-lg shadow-brand-500/50" />
+          <span className="absolute -top-0.5 w-10 h-1 bg-brand-600 dark:bg-brand-400 rounded-b-xl shadow-lg shadow-brand-500/50" />
         )}
-        <div className={`p-2 rounded-2xl transition-all ${isActive ? 'bg-brand-50 dark:bg-brand-900/20 -translate-y-1' : ''}`}>
+        <div className={`p-1.5 rounded-2xl transition-all ${isActive ? 'bg-brand-50 dark:bg-brand-900/20 -translate-y-1' : ''}`}>
           <Icon className="w-6 h-6" strokeWidth={isActive ? 2.5 : 2} />
         </div>
         <span className="text-[10px] font-bold tracking-wide">{label}</span>
@@ -117,12 +118,12 @@ const App: React.FC = () => {
 
   return (
     // CONTAINER PRINCIPAL: Flex Layout (Row Desktop, Column Mobile)
-    // FIXED INSET-0: O "Nuclear option" para layouts mobile. Previne que o container mude de tamanho
-    // ou pule quando o teclado abre/fecha de forma errática.
-    <div className="fixed inset-0 flex md:flex-row flex-col w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
+    // CONTRAST FIX: Alterado background para slate-100 (Light) vs slate-950 (Dark)
+    <div className="fixed inset-0 flex md:flex-row flex-col w-full bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
       
       {/* --- Desktop Sidebar (Fixed Width) --- */}
-      <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl shrink-0">
+      {/* CONTRAST FIX: Sidebar branca pura (bg-white) no modo claro para separar do conteúdo cinza (slate-100) */}
+      <aside className="hidden md:flex flex-col w-80 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 shrink-0 shadow-sm">
         <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
             <div className="w-14 h-14 flex items-center justify-center bg-white rounded-xl shadow-md border border-slate-100 flex-shrink-0 aspect-square">
@@ -142,18 +143,19 @@ const App: React.FC = () => {
           </div>
 
           <nav className="space-y-3">
+            <NavItemDesktop mode={ViewMode.HOME} icon={Home} label="Início" desc="Bem-vindo" />
             <NavItemDesktop mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural da Turma" desc="Provas e atividades" />
             <NavItemDesktop mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor Virtual" desc="Tire dúvidas com IA" />
           </nav>
         </div>
 
         <div className="mt-auto p-6 space-y-4">
-          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
              <div className="flex items-center justify-between mb-4">
                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sistema</span>
                <button 
                 onClick={() => setIsDarkMode(!isDarkMode)}
-                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors"
+                className="p-2 rounded-lg hover:bg-white hover:shadow-sm dark:hover:bg-slate-800 text-slate-500 transition-all"
               >
                 {isDarkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               </button>
@@ -163,7 +165,7 @@ const App: React.FC = () => {
                <div className="space-y-2">
                   <button 
                     onClick={() => setShowSettingsModal(true)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all hover:shadow-sm border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
                   >
                     <Settings className="w-4 h-4" /> Configurar IA
                   </button>
@@ -184,22 +186,22 @@ const App: React.FC = () => {
                 </button>
              )}
           </div>
-          <p className="text-[10px] text-center text-slate-400 font-medium">v2.1.1 • Portal Acadêmico</p>
+          <p className="text-[10px] text-center text-slate-400 font-medium">v2.2.0 • Portal Acadêmico</p>
         </div>
       </aside>
 
       {/* --- Main Content Container --- */}
-      <main className="flex-1 flex flex-col h-full w-full bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
+      <main className="flex-1 flex flex-col h-full w-full bg-slate-100 dark:bg-slate-950 relative overflow-hidden">
         
         {/* Mobile Header */}
-        <header className="md:hidden shrink-0 h-28 relative z-20 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
+        <header className="md:hidden shrink-0 h-28 relative z-20 px-6 flex items-center justify-between shadow-xl shadow-brand-900/10 bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
           <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
              <img 
                src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop" 
                className="w-full h-full object-cover"
              />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-900/30 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-900/40 pointer-events-none"></div>
 
           <div className="flex items-center gap-4 relative z-10">
              <div className="w-12 h-12 flex items-center justify-center bg-white p-2 rounded-xl shadow-lg shadow-black/10 flex-shrink-0 aspect-square">
@@ -241,9 +243,11 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Dynamic Content Area (Flex 1 - Occupies remaining space) */}
-        <div className="flex-1 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
-           {currentView === ViewMode.DASHBOARD ? (
+        {/* Dynamic Content Area */}
+        <div className="flex-1 relative overflow-hidden bg-slate-100 dark:bg-slate-950">
+           {currentView === ViewMode.HOME ? (
+             <HomeView onNavigate={setCurrentView} />
+           ) : currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
              <TutorView />
@@ -251,7 +255,8 @@ const App: React.FC = () => {
         </div>
         
         {/* Mobile Bottom Nav */}
-        <nav className="md:hidden shrink-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
+        <nav className="md:hidden shrink-0 h-[calc(4.5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-start pt-2 z-20 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none">
+          <NavItemMobile mode={ViewMode.HOME} icon={Home} label="Início" />
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
           <NavItemMobile mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor" />
         </nav>
@@ -264,7 +269,7 @@ const App: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 w-full max-w-xs rounded-[2rem] shadow-2xl p-8 animate-scale-in border border-white/20 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-brand-600"></div>
             <div className="flex flex-col items-center mb-8 mt-2">
-              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-slate-900 dark:text-white shadow-inner">
+              <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mb-4 text-slate-900 dark:text-white shadow-inner border border-slate-100 dark:border-slate-700">
                 <Shield className="w-8 h-8 text-brand-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">Área Restrita</h3>
@@ -275,7 +280,7 @@ const App: React.FC = () => {
                 type="password"
                 placeholder="Senha de acesso"
                 autoFocus
-                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-4 text-center focus:ring-2 focus:ring-brand-500 outline-none transition-all font-bold tracking-widest text-lg"
+                className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-4 text-center focus:ring-2 focus:ring-brand-500 outline-none transition-all font-bold tracking-widest text-lg text-slate-900 dark:text-white"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
               />
@@ -293,7 +298,7 @@ const App: React.FC = () => {
       {showSettingsModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[70] flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2rem] shadow-2xl flex flex-col max-h-[85vh] animate-slide-up overflow-hidden border border-white/10">
-            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 backdrop-blur-sm">
               <div className="flex items-center gap-4">
                  <div className="p-3 bg-brand-100 dark:bg-brand-900/30 rounded-xl">
                     <Settings className="w-6 h-6 text-brand-600 dark:text-brand-400" />

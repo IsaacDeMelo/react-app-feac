@@ -1,4 +1,5 @@
 export enum ViewMode {
+  HOME = 'HOME',
   DASHBOARD = 'DASHBOARD',
   TUTOR = 'TUTOR',
   LOGIN = 'LOGIN'

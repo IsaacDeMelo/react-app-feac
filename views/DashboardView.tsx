@@ -157,37 +157,53 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
   };
 
   return (
-    <div className="h-full w-full overflow-y-auto custom-scrollbar">
-      <div className="px-6 py-8 md:px-10 w-full max-w-7xl mx-auto">
-        
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">Mural da Turma</h2>
-            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm font-medium">
-              Acompanhe o calendário acadêmico e não perca prazos.
-            </p>
-          </div>
-          
-          {isAdmin && (
-            <button 
-              onClick={handleOpenNew} 
-              className="group flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-brand-900/20 transition-all hover:scale-105 active:scale-95"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Nova Atividade</span>
-            </button>
-          )}
-        </div>
+    <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-100 dark:bg-slate-950">
+      {/* Hero Banner */}
+      <div className="relative w-full h-48 md:h-64 bg-brand-900 overflow-hidden shadow-lg md:rounded-bl-[3rem]">
+         <div className="absolute inset-0">
+            <img 
+              src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=2070&auto=format&fit=crop" 
+              className="w-full h-full object-cover opacity-40 mix-blend-luminosity" 
+              alt="Campus" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-brand-900 via-brand-900/60 to-transparent"></div>
+         </div>
+         <div className="absolute bottom-0 left-0 w-full p-8 md:p-10">
+            <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row justify-between items-end gap-6">
+               <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[10px] font-bold uppercase tracking-widest mb-3">
+                    <Calendar className="w-3 h-3" />
+                    Ano Letivo 2024.1
+                  </div>
+                  <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2">Mural da Turma</h2>
+                  <p className="text-brand-200 text-sm font-medium max-w-md leading-relaxed">
+                    Acompanhe datas de provas, entregas de trabalhos e avisos importantes centralizados aqui.
+                  </p>
+               </div>
+               
+               {isAdmin && (
+                <button 
+                  onClick={handleOpenNew} 
+                  className="group flex items-center justify-center gap-2 bg-white text-brand-700 hover:bg-brand-50 px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-black/20 transition-all hover:scale-105 active:scale-95"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span>Nova Atividade</span>
+                </button>
+               )}
+            </div>
+         </div>
+      </div>
 
-        {/* Filter Pills - UNIFICADOS COM BRAND COLOR */}
+      <div className="px-6 py-8 md:px-10 w-full max-w-7xl mx-auto -mt-6 relative z-10">
+        
+        {/* Filter Pills */}
         <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-4 hide-scrollbar">
           <button
             onClick={() => setFilter('ALL')}
             className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap border ${
               filter === 'ALL' 
                 ? 'bg-brand-600 text-white border-brand-600 dark:bg-brand-600 dark:border-brand-600 shadow-lg shadow-brand-500/30' 
-                : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 hover:border-slate-300'
+                : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 hover:border-slate-300 shadow-sm'
             }`}
           >
             Todos
@@ -199,7 +215,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
               className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wide transition-all whitespace-nowrap border ${
                 filter === t 
                   ? 'bg-brand-600 text-white border-brand-600 dark:bg-brand-600 dark:border-brand-600 shadow-lg shadow-brand-500/30' 
-                  : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 hover:border-slate-300'
+                  : 'bg-white text-slate-500 border-slate-200 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 hover:border-slate-300 shadow-sm'
               }`}
             >
               {t}
@@ -209,12 +225,12 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
         {/* Empty State */}
         {!loading && filteredActivities.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-32 px-4 text-center animate-fade-in bg-white dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
-            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+          <div className="flex flex-col items-center justify-center py-32 px-4 text-center animate-fade-in bg-white dark:bg-slate-900/50 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 border border-slate-100 dark:border-slate-700">
               <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600" />
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Tudo tranquilo por aqui</h3>
-            <p className="text-slate-500 max-w-xs mx-auto text-sm">Nenhuma atividade cadastrada para esta categoria.</p>
+            <p className="text-slate-500 max-w-xs mx-auto text-sm">Nenhuma atividade cadastrada para esta categoria no momento.</p>
           </div>
         )}
 
@@ -233,9 +249,10 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
             const Icon = style.icon;
 
             return (
+              // CONTRAST FIX: bg-white com border-slate-200 para destacar do fundo slate-100
               <div 
                 key={item.id}
-                className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-7 border border-slate-100 dark:border-slate-800 shadow-[0_2px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] dark:shadow-none dark:hover:bg-slate-800/50 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 hover:border-brand-100 dark:hover:border-brand-900/30"
+                className="group relative bg-white dark:bg-slate-900 rounded-[2rem] p-7 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 dark:shadow-none dark:hover:bg-slate-800/50 transition-all duration-300 flex flex-col h-full hover:-translate-y-1 hover:border-brand-200 dark:hover:border-brand-900/30"
                 style={{ animationDelay: `${idx * 50}ms` }}
               >
                 {/* Top Row */}
@@ -285,14 +302,14 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                   <div className="absolute top-5 right-5 flex items-center gap-1">
                     <button 
                       onClick={(e) => {e.stopPropagation(); handleEdit(item)}} 
-                      className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-50 hover:text-brand-600 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 dark:text-slate-400 transition-all shadow-sm"
+                      className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-50 hover:text-brand-600 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 dark:text-slate-400 transition-all shadow-sm border border-slate-200 dark:border-slate-700"
                       title="Editar"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={(e) => {e.stopPropagation(); handleDelete(item.id)}} 
-                      className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-50 hover:text-brand-600 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 dark:text-slate-400 transition-all shadow-sm"
+                      className="w-9 h-9 flex items-center justify-center rounded-full text-slate-400 bg-slate-50 hover:text-brand-600 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 dark:text-slate-400 transition-all shadow-sm border border-slate-200 dark:border-slate-700"
                       title="Excluir"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -340,7 +357,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                              required 
                              value={formData.subject} 
                              onChange={e => setFormData({...formData, subject: e.target.value})} 
-                             className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 font-medium focus:ring-2 focus:ring-brand-500 outline-none transition-all" 
+                             className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 font-medium focus:ring-2 focus:ring-brand-500 outline-none transition-all text-slate-900 dark:text-white" 
                              placeholder="Ex: MKT01" 
                            />
                          </div>
@@ -382,7 +399,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                            rows={4} 
                            value={formData.description} 
                            onChange={e => setFormData({...formData, description: e.target.value})} 
-                           className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-500 outline-none resize-none transition-all text-sm leading-relaxed" 
+                           className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brand-500 outline-none resize-none transition-all text-sm leading-relaxed text-slate-900 dark:text-white" 
                            placeholder="Adicione detalhes sobre o conteúdo, regras, capítulos do livro ou instruções de entrega..." 
                          />
                       </div>
