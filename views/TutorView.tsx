@@ -15,6 +15,9 @@ export const TutorView: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [activityCount, setActivityCount] = useState(0);
 
+  // Avatar da Luna
+  const LUNA_AVATAR_URL = "https://cdn-icons-png.flaticon.com/512/4712/4712015.png";
+
   useEffect(() => {
     const initChat = async () => {
       try {
@@ -145,9 +148,13 @@ export const TutorView: React.FC = () => {
       <div className="flex-1 overflow-y-auto px-4 space-y-6 custom-scrollbar py-16">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center min-h-[50vh] animate-fade-in mt-10">
-            <div className="w-20 h-20 bg-white dark:bg-slate-900 rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 relative">
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 border-4 border-slate-50 dark:border-slate-950 rounded-full"></div>
-              <Bot className="w-10 h-10 text-brand-600 dark:text-brand-400" />
+            <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-slate-200/50 dark:shadow-none border-4 border-white dark:border-slate-800 relative">
+              <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white dark:border-slate-950 rounded-full z-10"></div>
+              <img 
+                src={LUNA_AVATAR_URL} 
+                alt="Luna" 
+                className="w-16 h-16 object-contain hover:scale-110 transition-transform duration-300" 
+              />
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Luna</h2>
             <p className="text-slate-500 dark:text-slate-400 text-center max-w-[280px] text-sm leading-relaxed">
@@ -170,10 +177,10 @@ export const TutorView: React.FC = () => {
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex w-full gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}>
             
-            {/* Avatar Bot */}
+            {/* Avatar Bot Small */}
             {msg.role === 'model' && (
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-md">
-                <Bot className="w-4 h-4 text-white" />
+              <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-sm overflow-hidden p-1">
+                <img src={LUNA_AVATAR_URL} alt="Luna" className="w-full h-full object-contain" />
               </div>
             )}
 
@@ -204,7 +211,7 @@ export const TutorView: React.FC = () => {
          <div className="max-w-4xl mx-auto bg-white dark:bg-slate-900 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-800 p-2 flex items-end gap-2 transition-all focus-within:ring-2 focus-within:ring-brand-500/20">
             <textarea
                className="flex-1 bg-transparent text-slate-900 dark:text-white px-4 py-3.5 focus:outline-none placeholder-slate-400 resize-none max-h-32 min-h-[52px] text-base"
-               placeholder="Digite sua mensagem..."
+               placeholder="Digite sua mensagem para Luna..."
                value={input}
                onChange={e => setInput(e.target.value)}
                onKeyDown={(e) => {
