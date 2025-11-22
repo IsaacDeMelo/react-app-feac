@@ -14,19 +14,19 @@ export default {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       colors: {
-        // Primary Brand Color (Unified Red/Ruby for UFAL Identity)
+        // Primary Brand Color (Unified Blue for UFAL/Administration Identity)
         brand: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626', // Primary Action
-          700: '#b91c1c', // Header / Darker Action
-          800: '#991b1b',
-          900: '#7f1d1d',
-          950: '#450a0a',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb', // Primary Action
+          700: '#1d4ed8', // Header / Darker Action
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554',
         },
         // Neutral Surface Colors (Slate)
         slate: {

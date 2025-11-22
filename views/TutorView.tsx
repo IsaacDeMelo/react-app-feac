@@ -155,7 +155,7 @@ export const TutorView: React.FC = () => {
                  O que temos agendado para essa semana?
                </button>
                <button onClick={() => setInput("Quais são as regras para o trabalho final?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
-                 <span className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-600"><Bot className="w-4 h-4" /></span>
+                 <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><Bot className="w-4 h-4" /></span>
                  Quais as regras do trabalho?
                </button>
             </div>

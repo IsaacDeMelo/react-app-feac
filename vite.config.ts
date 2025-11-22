@@ -5,7 +5,7 @@ import fs from 'fs';
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // 1. Load standard .env files if present
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, (process as any).cwd(), '');
   
   // 2. Determine API Key with priority:
   // System Env (Render Env Vars) -> .env file -> Render Secret File
