@@ -200,7 +200,7 @@ const App: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-brand-900/30 pointer-events-none"></div>
 
           <div className="flex items-center gap-4 relative z-10">
-             <div className="w-12 h-12 flex items-center justify-center bg-white p-2 rounded-2xl shadow-lg shadow-black/10 flex-shrink-0">
+             <div className="w-12 h-12 flex items-center justify-center bg-white p-2 rounded-2xl shadow-lg shadow-black/10 flex-shrink-0 aspect-square">
                <img 
                   src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
                   alt="UFAL" 
@@ -241,10 +241,11 @@ const App: React.FC = () => {
 
         {/* 
           SCROLLABLE VIEWPORT 
-          On Mobile: Positioned absolutely between Header (top-20) and Nav (bottom-20).
-          On Desktop: Fills the remaining space naturally.
+          On Mobile: Positioned absolutely between Header (top-20) and Nav.
+          We use calc() and env(safe-area-inset-bottom) to ensure the content view stops 
+          exactly where the navbar starts, respecting system gesture bars.
         */}
-        <div className="absolute top-28 bottom-20 left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div className="absolute top-28 bottom-[calc(5rem+env(safe-area-inset-bottom))] left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
@@ -252,8 +253,12 @@ const App: React.FC = () => {
            )}
         </div>
         
-        {/* Mobile Bottom Nav (Fixed Height: 80px) */}
-        <nav className="md:hidden absolute bottom-0 left-0 right-0 h-20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
+        {/* 
+          Mobile Bottom Nav 
+          Height is 5rem (h-20) PLUS the safe area inset.
+          Padding bottom ensures icons are pushed up from the system bar.
+        */}
+        <nav className="md:hidden absolute bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
           <NavItemMobile mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor" />
         </nav>
