@@ -15,8 +15,8 @@ export const TutorView: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [activityCount, setActivityCount] = useState(0);
 
-  // Avatar da Luna - Versão Feminina
-  const LUNA_AVATAR_URL = "https://cdn-icons-png.flaticon.com/512/9477/9477879.png";
+  // Avatar da Luna - Atualizado
+  const LUNA_AVATAR_URL = "https://img.icons8.com/?size=100&id=23318&format=png&color=000000";
 
   useEffect(() => {
     const initChat = async () => {
@@ -154,7 +154,7 @@ export const TutorView: React.FC = () => {
               <img 
                 src={LUNA_AVATAR_URL} 
                 alt="Luna" 
-                className="w-16 h-16 object-contain hover:scale-110 transition-transform duration-300" 
+                className="w-14 h-14 object-contain hover:scale-110 transition-transform duration-300 opacity-90" 
               />
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Luna</h2>
@@ -180,27 +180,34 @@ export const TutorView: React.FC = () => {
             
             {/* Avatar Bot Small */}
             {msg.role === 'model' && (
-              <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-sm overflow-hidden p-1">
-                <img src={LUNA_AVATAR_URL} alt="Luna" className="w-full h-full object-contain" />
+              <div className="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-sm overflow-hidden p-1.5">
+                <img src={LUNA_AVATAR_URL} alt="Luna" className="w-full h-full object-contain opacity-80" />
               </div>
             )}
 
-            <div className={`
-              relative max-w-[85%] md:max-w-[70%] px-5 py-4 text-[15px] leading-relaxed shadow-sm
-              ${msg.role === 'user' 
-                ? 'bg-brand-600 text-white rounded-[1.2rem] rounded-br-sm' 
-                : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-[1.2rem] rounded-bl-sm'
-              }
-            `}>
-              {msg.isLoading && !msg.text ? (
-                 <div className="flex gap-1.5 items-center h-5 px-1">
-                    <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms'}}></span>
-                    <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms'}}></span>
-                    <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms'}}></span>
-                 </div>
-              ) : (
-                <Markdown content={msg.text} className={msg.role === 'user' ? 'prose-invert' : ''} />
-              )}
+            <div className="flex flex-col max-w-[85%] md:max-w-[70%]">
+               {/* Name Label for Model */}
+               {msg.role === 'model' && (
+                 <span className="text-[10px] font-bold text-slate-400 ml-1 mb-1">Luna</span>
+               )}
+               
+               <div className={`
+                 relative px-5 py-4 text-[15px] leading-relaxed shadow-sm
+                 ${msg.role === 'user' 
+                   ? 'bg-brand-600 text-white rounded-[1.2rem] rounded-br-sm' 
+                   : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-[1.2rem] rounded-bl-sm'
+                 }
+               `}>
+                 {msg.isLoading && !msg.text ? (
+                    <div className="flex gap-1.5 items-center h-5 px-1">
+                       <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms'}}></span>
+                       <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms'}}></span>
+                       <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms'}}></span>
+                    </div>
+                 ) : (
+                   <Markdown content={msg.text} className={msg.role === 'user' ? 'prose-invert' : ''} />
+                 )}
+               </div>
             </div>
           </div>
         ))}
