@@ -158,40 +158,33 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
   return (
     <div className="h-full w-full overflow-y-auto custom-scrollbar bg-slate-100 dark:bg-slate-950">
-      {/* Hero Banner (Clean Version) */}
-      <div className="relative w-full h-40 md:h-56 bg-brand-700 shadow-lg md:rounded-bl-[3rem] overflow-hidden">
-         {/* Subtle Abstract Decoration */}
-         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-         <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-
-         <div className="absolute bottom-0 left-0 w-full p-8 md:p-10">
-            <div className="max-w-7xl mx-auto w-full flex flex-col md:flex-row justify-between items-end gap-6">
-               <div className="relative z-10">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-[10px] font-bold uppercase tracking-widest mb-3">
-                    <Calendar className="w-3 h-3" />
-                    Ano Letivo 2024.1
-                  </div>
-                  <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2">Mural da Turma</h2>
-                  <p className="text-brand-100 text-sm font-medium max-w-md leading-relaxed">
-                    Acompanhe datas de provas, entregas de trabalhos e avisos importantes centralizados aqui.
-                  </p>
-               </div>
-               
-               {isAdmin && (
-                <button 
-                  onClick={handleOpenNew} 
-                  className="group flex items-center justify-center gap-2 bg-white text-brand-700 hover:bg-brand-50 px-6 py-3.5 rounded-2xl font-bold shadow-xl shadow-black/20 transition-all hover:scale-105 active:scale-95 relative z-10"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Nova Atividade</span>
-                </button>
-               )}
-            </div>
-         </div>
-      </div>
-
-      <div className="px-6 py-8 md:px-10 w-full max-w-7xl mx-auto -mt-6 relative z-10">
+      
+      <div className="px-6 py-8 md:px-10 w-full max-w-7xl mx-auto pt-10">
         
+        {/* Header Section (Clean) */}
+        <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+             <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-900/10 text-brand-600 dark:text-brand-400 text-[10px] font-bold uppercase tracking-widest mb-3 border border-brand-100 dark:border-brand-900/20">
+                  <Calendar className="w-3 h-3" />
+                  Ano Letivo 2024.1
+                </div>
+                <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Mural da Turma</h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium max-w-md leading-relaxed">
+                  Acompanhe datas de provas, entregas de trabalhos e avisos importantes centralizados aqui.
+                </p>
+             </div>
+             
+             {isAdmin && (
+              <button 
+                onClick={handleOpenNew} 
+                className="flex items-center justify-center gap-2 bg-brand-600 text-white hover:bg-brand-700 px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand-500/20 transition-all hover:scale-105 active:scale-95"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Nova Atividade</span>
+              </button>
+             )}
+        </div>
+
         {/* Filter Pills */}
         <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-4 hide-scrollbar">
           <button
