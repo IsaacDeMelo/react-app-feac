@@ -116,13 +116,14 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
+    // FIX: mudamos h-screen para h-[100dvh] para corrigir a altura em mobile browsers
+    <div className="flex h-[100dvh] w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-500">
       
       {/* --- Desktop Sidebar --- */}
       <aside className="hidden md:flex flex-col w-80 h-full bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 z-30 backdrop-blur-xl">
         <div className="p-8">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl shadow-md border border-slate-100 flex-shrink-0">
+            <div className="w-14 h-14 flex items-center justify-center bg-white rounded-2xl shadow-md border border-slate-100 flex-shrink-0 aspect-square">
               <img 
                 src="https://upload.wikimedia.org/wikipedia/commons/d/d5/Ufal.png" 
                 alt="UFAL Logo" 
@@ -188,8 +189,9 @@ const App: React.FC = () => {
       {/* --- Main Content Area --- */}
       <main className="flex-1 h-full w-full bg-slate-50 dark:bg-slate-950 relative">
         
-        {/* Mobile Top Bar (Fixed Height: 80px) */}
-        <header className="md:hidden absolute top-0 left-0 right-0 h-28 z-50 px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
+        {/* Mobile Top Bar (Fixed Height: 28 / 112px) */}
+        {/* FIX: Changed to fixed positioning to stay pinned on scroll */}
+        <header className="md:hidden fixed top-0 left-0 right-0 h-28 z-[60] px-6 flex items-center justify-between shadow-lg bg-brand-700 rounded-b-[2.5rem] transition-all overflow-hidden">
           {/* Abstract Background Image */}
           <div className="absolute inset-0 opacity-10 mix-blend-overlay pointer-events-none">
              <img 
@@ -241,11 +243,11 @@ const App: React.FC = () => {
 
         {/* 
           SCROLLABLE VIEWPORT 
-          On Mobile: Positioned absolutely between Header (top-20) and Nav.
-          We use calc() and env(safe-area-inset-bottom) to ensure the content view stops 
-          exactly where the navbar starts, respecting system gesture bars.
+          FIX: Removed complex absolute positioning. 
+          Now using simple padding-top (header) and padding-bottom (nav) with full height scroll.
+          This is more robust on mobile.
         */}
-        <div className="absolute top-28 bottom-[calc(5rem+env(safe-area-inset-bottom))] left-0 right-0 md:static md:h-full md:w-full overflow-hidden bg-slate-50 dark:bg-slate-950">
+        <div className="h-full w-full overflow-y-auto bg-slate-50 dark:bg-slate-950 pt-28 pb-[calc(5rem+env(safe-area-inset-bottom)+1rem)] md:pt-0 md:pb-0 custom-scrollbar">
            {currentView === ViewMode.DASHBOARD ? (
              <DashboardView isAdmin={isAdmin} />
            ) : (
@@ -255,10 +257,10 @@ const App: React.FC = () => {
         
         {/* 
           Mobile Bottom Nav 
-          Height is 5rem (h-20) PLUS the safe area inset.
-          Padding bottom ensures icons are pushed up from the system bar.
+          FIX: Changed to 'fixed' positioning to ensure it stays on screen regardless of scroll parent.
+          Added z-[60] to stay above content.
         */}
-        <nav className="md:hidden absolute bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-start pt-2 z-[60] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] dark:shadow-none">
           <NavItemMobile mode={ViewMode.DASHBOARD} icon={LayoutGrid} label="Mural" />
           <NavItemMobile mode={ViewMode.TUTOR} icon={MessageCircle} label="Monitor" />
         </nav>
