@@ -15,8 +15,8 @@ export const TutorView: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [activityCount, setActivityCount] = useState(0);
 
-  // Avatar da Luna
-  const LUNA_AVATAR_URL = "https://cdn-icons-png.flaticon.com/512/4712/4712015.png";
+  // Avatar da Luna - Versão Feminina
+  const LUNA_AVATAR_URL = "https://cdn-icons-png.flaticon.com/512/9477/9477879.png";
 
   useEffect(() => {
     const initChat = async () => {
@@ -33,7 +33,6 @@ export const TutorView: React.FC = () => {
         const dateString = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         // 4. Formatar lista de atividades para a IA entender claramente
-        // Convertendo YYYY-MM-DD para DD/MM/YYYY para evitar confusão
         const activitiesList = activities.length > 0 
           ? activities.map(a => {
               const [y, m, d] = a.date.split('-');
@@ -49,7 +48,8 @@ export const TutorView: React.FC = () => {
         --- PERSONA ---
         Nome: Luna
         Gênero: Feminino
-        Tom de voz: Informal, amiga, prestativa e direta.
+        Tom de voz: Informal, carinhosa, amiga, prestativa e direta.
+        IMPORTANTE: Fale sempre no SINGULAR. Trate o usuário como "você" ou "aluno". NUNCA use "pessoal", "turma" ou "galera" para se dirigir ao usuário. A conversa é individual (1 para 1).
         
         --- HOJE ---
         Data atual: ${dateString} (Use isso para calcular "amanhã", "semana que vem", etc)
@@ -66,6 +66,7 @@ export const TutorView: React.FC = () => {
         1. Se o aluno perguntar "o que tem pra fazer?", liste as atividades futuras do mural.
         2. Se o mural estiver vazio e perguntarem sobre datas, diga que não há nada agendado.
         3. Seja cordial, claro e use Markdown para negrito e listas.
+        4. Inicie a conversa de forma acolhedora, mas individualizada.
         `;
 
         chatSessionRef.current = createChatSession('gemini-2.5-flash', systemContext);
@@ -158,13 +159,13 @@ export const TutorView: React.FC = () => {
             </div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Luna</h2>
             <p className="text-slate-500 dark:text-slate-400 text-center max-w-[280px] text-sm leading-relaxed">
-              Olá! Eu sou a Luna, sua monitora virtual. Pergunte sobre datas, prazos ou tire dúvidas da matéria.
+              Olá, aluno! Eu sou a Luna. Estou aqui para te ajudar com as datas e matérias.
             </p>
             
             <div className="mt-10 grid grid-cols-1 gap-3 w-full max-w-xs">
                <button onClick={() => setInput("O que temos agendado para esta semana?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
                  <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><CalendarCheck className="w-4 h-4" /></span>
-                 O que temos agendado para essa semana?
+                 O que tenho agendado para essa semana?
                </button>
                <button onClick={() => setInput("Quais são as regras para o trabalho final?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3">
                  <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><Bot className="w-4 h-4" /></span>
