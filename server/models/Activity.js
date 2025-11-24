@@ -11,10 +11,11 @@ const ActivitySchema = new mongoose.Schema({
   },
   description: String,
   createdAt: { type: Number, default: Date.now },
+  // Correção: Definir explicitamente a estrutura do objeto para evitar conflito com a palavra reservada 'type'
   attachment: {
-    name: String,
-    type: String,
-    data: String // Base64 string
+    name: { type: String },
+    type: { type: String },
+    data: { type: String }
   }
 });
 
