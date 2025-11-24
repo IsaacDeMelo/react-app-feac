@@ -1,5 +1,16 @@
 import { Activity, AiConfig, Attachment } from '../types';
 
+// --- CONFIGURAÇÃO DO MODO DE DADOS ---
+// TRUE para usar o servidor Node.js com MongoDB
+const USE_API = true; 
+
+// Alterado para caminho relativo. 
+// Em produção (Render), o front e o back estão na mesma origem.
+// Em dev local, você deve configurar um proxy no vite ou rodar tudo junto.
+// Se rodar separado localmente, o proxy do Vite lidará com isso ou você precisará mudar para localhost temporariamente,
+// mas o ideal para deploy é o caminho relativo.
+const API_URL = '/api/activities';
+
 const ACTIVITIES_KEY = 'ufal_activities_v2';
 const SETTINGS_KEY = 'ufal_settings_v2';
 
@@ -27,16 +38,17 @@ const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-// -- Activities Service --
+// ==========================================
+// MÉTODOS LOCAL STORAGE (Fallback)
+// ==========================================
 
-export const getActivities = async (): Promise<Activity[]> => {
+const getActivitiesLocal = async (): Promise<Activity[]> => {
   try {
     const data = localStorage.getItem(ACTIVITIES_KEY);
     if (!data) return [];
     
     const activities: Activity[] = JSON.parse(data);
     
-    // Filter expired and sort by date
     return activities
       .filter(a => !isExpired(a.date))
       .sort((a, b) => a.date.localeCompare(b.date));
@@ -46,11 +58,10 @@ export const getActivities = async (): Promise<Activity[]> => {
   }
 };
 
-export const addActivity = async (
+const addActivityLocal = async (
   activityData: Omit<Activity, 'id' | 'createdAt' | 'attachment'>,
   file: File | null
 ): Promise<void> => {
-  
   let attachment: Attachment | undefined = undefined;
 
   if (file) {
@@ -85,11 +96,10 @@ export const addActivity = async (
   localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
 };
 
-export const updateActivity = async (
+const updateActivityLocal = async (
   activity: Activity,
   newFile?: File | null
 ): Promise<void> => {
-  
   const currentData = localStorage.getItem(ACTIVITIES_KEY);
   if (!currentData) return;
 
@@ -98,7 +108,7 @@ export const updateActivity = async (
 
   if (index === -1) return;
 
-  let updatedAttachment = activities[index].attachment; // Keep existing by default
+  let updatedAttachment = activities[index].attachment; 
 
   if (newFile) {
     const base64 = await fileToBase64(newFile);
@@ -108,7 +118,6 @@ export const updateActivity = async (
       data: base64
     };
   } else if (newFile === null) {
-    // Explicitly removed
     updatedAttachment = undefined;
   }
 
@@ -125,25 +134,116 @@ export const updateActivity = async (
   localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
 };
 
-export const deleteActivity = async (id: string): Promise<void> => {
+const deleteActivityLocal = async (id: string): Promise<void> => {
   const currentData = localStorage.getItem(ACTIVITIES_KEY);
   if (!currentData) return;
 
   let activities: Activity[] = JSON.parse(currentData);
   activities = activities.filter(a => a.id !== id);
-  
   localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
 };
 
-// -- AI Configuration Service --
+// ==========================================
+// MÉTODOS API (Node + MongoDB)
+// ==========================================
 
-export const getAiConfig = async (): Promise<AiConfig> => {
-  const data = localStorage.getItem(SETTINGS_KEY);
-  if (data) {
-    return JSON.parse(data) as AiConfig;
+const getActivitiesAPI = async (): Promise<Activity[]> => {
+  try {
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error('Erro na API');
+    const activities: Activity[] = await response.json();
+    
+    // Filtragem de data também pode ser feita no backend, mas mantemos aqui por segurança visual
+    return activities
+      .filter(a => !isExpired(a.date))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  } catch (error) {
+    console.error("Falha ao buscar da API:", error);
+    // Em produção, isso significa que a API caiu.
+    // Em dev, pode ser que o proxy não esteja rodando ou backend desligado.
+    return [];
+  }
+};
+
+const addActivityAPI = async (
+  activityData: Omit<Activity, 'id' | 'createdAt' | 'attachment'>,
+  file: File | null
+): Promise<void> => {
+  let attachment: Attachment | undefined = undefined;
+
+  if (file) {
+    const base64 = await fileToBase64(file);
+    attachment = {
+      name: file.name,
+      type: file.type,
+      data: base64
+    };
   }
 
-  // Default
+  const payload = {
+    ...activityData,
+    attachment
+  };
+
+  await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+};
+
+const updateActivityAPI = async (
+  activity: Activity,
+  newFile?: File | null
+): Promise<void> => {
+  let updatedAttachment = activity.attachment;
+
+  if (newFile) {
+    const base64 = await fileToBase64(newFile);
+    updatedAttachment = {
+      name: newFile.name,
+      type: newFile.type,
+      data: base64
+    };
+  } else if (newFile === null) {
+    updatedAttachment = undefined;
+  }
+
+  const payload = {
+    title: activity.title,
+    subject: activity.subject,
+    date: activity.date,
+    type: activity.type,
+    description: activity.description,
+    attachment: updatedAttachment
+  };
+
+  await fetch(`${API_URL}/${activity.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+};
+
+const deleteActivityAPI = async (id: string): Promise<void> => {
+  await fetch(`${API_URL}/${id}`, {
+    method: 'DELETE'
+  });
+};
+
+// ==========================================
+// EXPORTAÇÃO DINÂMICA
+// ==========================================
+
+export const getActivities = USE_API ? getActivitiesAPI : getActivitiesLocal;
+export const addActivity = USE_API ? addActivityAPI : addActivityLocal;
+export const updateActivity = USE_API ? updateActivityAPI : updateActivityLocal;
+export const deleteActivity = USE_API ? deleteActivityAPI : deleteActivityLocal;
+
+// Configuração da IA continua LocalStorage por simplicidade
+export const getAiConfig = async (): Promise<AiConfig> => {
+  const data = localStorage.getItem(SETTINGS_KEY);
+  if (data) return JSON.parse(data) as AiConfig;
   return {
     context: `Você é a Luna, uma monitora acadêmica auxiliar para o curso de Administração.
 
