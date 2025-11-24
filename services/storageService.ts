@@ -10,9 +10,11 @@ import {
   query, 
   orderBy, 
   setDoc,
-  getDoc
+  getDoc,
+  onSnapshot,
+  Unsubscribe
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const ACTIVITIES_COLLECTION = 'activities';
 const SETTINGS_COLLECTION = 'settings';
@@ -34,6 +36,7 @@ const isExpired = (dateString: string): boolean => {
 
 // -- Activities Service --
 
+// Fetch once (Used by AI Tutor)
 export const getActivities = async (): Promise<Activity[]> => {
   try {
     const q = query(collection(db, ACTIVITIES_COLLECTION), orderBy('date', 'asc'));
@@ -42,7 +45,6 @@ export const getActivities = async (): Promise<Activity[]> => {
     const activities: Activity[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data() as Omit<Activity, 'id'>;
-      // Filter client-side for expired to keep DB simple, or use a complex query
       if (!isExpired(data.date)) {
         activities.push({ id: doc.id, ...data });
       }
@@ -50,9 +52,31 @@ export const getActivities = async (): Promise<Activity[]> => {
 
     return activities;
   } catch (error) {
-    console.error("Error fetching activities form Firebase:", error);
+    console.error("Error fetching activities from Firebase:", error);
     return [];
   }
+};
+
+// Real-time Subscription (Used by Dashboard)
+export const subscribeToActivities = (onUpdate: (data: Activity[]) => void): Unsubscribe => {
+  const q = query(collection(db, ACTIVITIES_COLLECTION), orderBy('date', 'asc'));
+  
+  return onSnapshot(q, (snapshot) => {
+    const activities: Activity[] = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data() as Omit<Activity, 'id'>;
+      // Filter client-side
+      if (!isExpired(data.date)) {
+        activities.push({ id: doc.id, ...data });
+      }
+    });
+    onUpdate(activities);
+  }, (error) => {
+    console.error("Firebase Realtime Error:", error);
+    if (error.code === 'permission-denied') {
+      alert("Acesso Negado: Verifique as Regras de Segurança (Security Rules) no Console do Firebase.");
+    }
+  });
 };
 
 export const addActivity = async (
@@ -96,13 +120,7 @@ export const updateActivity = async (
   let updatedAttachment = activity.attachment;
 
   if (newFile) {
-    // 1. Delete old file if exists and is a firebase URL
-    if (activity.attachment?.data?.includes('firebasestorage')) {
-       // Logic to extract ref from URL could go here, strictly speaking we should store the path
-       // For simplicity, we just upload the new one for now.
-    }
-
-    // 2. Upload new
+    // 1. Upload new
     const storageRef = ref(storage, `attachments/${Date.now()}_${newFile.name}`);
     const snapshot = await uploadBytes(storageRef, newFile);
     const downloadURL = await getDownloadURL(snapshot.ref);
@@ -117,19 +135,18 @@ export const updateActivity = async (
     updatedAttachment = undefined;
   }
 
+  // Use updateDoc only for fields that change, but here we pass full structure mostly
   await updateDoc(activityRef, {
     title: activity.title,
     subject: activity.subject,
     date: activity.date,
     type: activity.type,
     description: activity.description,
-    attachment: updatedAttachment
+    attachment: updatedAttachment === undefined ? null : updatedAttachment // Firestore prefers null over undefined
   });
 };
 
 export const deleteActivity = async (id: string): Promise<void> => {
-  // Note: To be perfectly clean, we should delete the file from Storage too.
-  // We'd need to store the storageRefPath in the document to do this easily.
   await deleteDoc(doc(db, ACTIVITIES_COLLECTION, id));
 };
 

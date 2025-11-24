@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical, Pencil, GraduationCap } from 'lucide-react';
 import { Activity, ActivityType, Attachment } from '../types';
-import { getActivities, addActivity, updateActivity, deleteActivity } from '../services/storageService';
+import { subscribeToActivities, addActivity, updateActivity, deleteActivity } from '../services/storageService';
 
 interface DashboardProps {
   isAdmin: boolean;
@@ -29,21 +29,26 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
   // State to hold the raw file for upload
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const loadData = async () => {
-    setLoading(true);
-    const data = await getActivities();
-    setActivities(data);
-    setLoading(false);
-  };
-
+  // Real-time subscription
   useEffect(() => {
-    loadData();
+    setLoading(true);
+    const unsubscribe = subscribeToActivities((data) => {
+      setActivities(data);
+      setLoading(false);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir esta atividade?')) {
-      await deleteActivity(id);
-      loadData();
+      try {
+        await deleteActivity(id);
+        // No need to call loadData(), subscription handles it
+      } catch (e) {
+        alert("Erro ao excluir. Verifique permissões.");
+      }
     }
   };
 
@@ -78,7 +83,6 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
       setSelectedFile(file);
       
       // We still set formData.attachment for the UI preview (name/type)
-      // but 'data' will be empty or a placeholder until upload
       setFormData(prev => ({
         ...prev,
         attachment: {
@@ -107,9 +111,6 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
         // Update existing
         const original = activities.find(a => a.id === editingId);
         if (original) {
-          // If selectedFile is null but formData.attachment is null, it means file was removed
-          // If selectedFile is null but formData.attachment exists, keep existing (unless explicitly removed logic needed)
-          
           let fileToPass = selectedFile;
           if (!selectedFile && !formData.attachment) {
              fileToPass = null; // Explicit remove
@@ -141,10 +142,9 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
       setEditingId(null);
       setFormData({ title: '', subject: '', date: '', type: 'atividade', description: '', attachment: null });
       setSelectedFile(null);
-      loadData();
     } catch (error) {
       console.error(error);
-      alert("Erro ao salvar. Verifique o console.");
+      alert("Erro ao salvar. Verifique se as Regras do Firebase permitem gravação.");
     } finally {
       setSubmitting(false);
     }
@@ -472,4 +472,4 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
       </div>
     </div>
   );
-};
+}
