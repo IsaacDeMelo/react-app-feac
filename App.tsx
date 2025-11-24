@@ -39,8 +39,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (showSettingsModal) {
-      const config = getAiConfig();
-      setAiContext(config.context);
+      const loadConfig = async () => {
+        const config = await getAiConfig();
+        setAiContext(config.context);
+      };
+      loadConfig();
     }
   }, [showSettingsModal]);
 
@@ -61,8 +64,8 @@ const App: React.FC = () => {
     setShowSettingsModal(false);
   };
 
-  const handleSaveSettings = () => {
-    saveAiConfig({ context: aiContext });
+  const handleSaveSettings = async () => {
+    await saveAiConfig({ context: aiContext });
     setShowSettingsModal(false);
   };
 

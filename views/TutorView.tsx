@@ -21,8 +21,8 @@ export const TutorView: React.FC = () => {
   useEffect(() => {
     const initChat = async () => {
       try {
-        // 1. Obter configurações salvas (contexto da disciplina)
-        const aiConfig = getAiConfig();
+        // 1. Obter configurações salvas (contexto da disciplina) - Agora é Async com Firebase
+        const aiConfig = await getAiConfig();
         
         // 2. Obter atividades do Mural
         const activities = await getActivities();
