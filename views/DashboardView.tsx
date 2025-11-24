@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical, Pencil, GraduationCap } from 'lucide-react';
+import { Plus, Calendar, BookOpen, AlertCircle, FileText, Trash2, Loader2, X, Clock, Tag, Paperclip, Download, Filter, CheckCircle2, MoreVertical, Pencil, GraduationCap, ImageIcon } from 'lucide-react';
 import { Activity, ActivityType, Attachment } from '../types';
 import { getActivities, addActivity, updateActivity, deleteActivity } from '../services/storageService';
 
@@ -86,14 +86,19 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
       }
       setSelectedFile(file);
       
-      setFormData(prev => ({
-        ...prev,
-        attachment: {
-          name: file.name,
-          type: file.type,
-          data: '' // Will be processed in service
-        }
-      }));
+      // Create a temporary URL for preview if it's an image
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+          setFormData(prev => ({
+            ...prev,
+            attachment: {
+              name: file.name,
+              type: file.type,
+              data: ev.target?.result as string
+            }
+          }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -148,7 +153,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
       setSelectedFile(null);
     } catch (error) {
       console.error("ERRO AO SALVAR:", error);
-      alert("Erro ao salvar. Verifique se o backend está rodando (npm start) e olhe o Console (F12) para detalhes.");
+      alert("Erro ao registrar. Verifique sua conexão e tente novamente.");
     } finally {
       setSubmitting(false);
     }
@@ -264,6 +269,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
             const dateObj = formatDate(item.date);
             const style = getTypeStyle(item.type);
             const Icon = style.icon;
+            const hasImage = item.attachment?.type?.startsWith('image/');
 
             return (
               <div 
@@ -297,6 +303,17 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                   <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-4">
                     {item.description}
                   </p>
+
+                  {/* Attachment Preview (In Card) */}
+                  {hasImage && item.attachment && (
+                    <div className="mt-4 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 h-40 w-full relative group-hover:border-brand-200 dark:group-hover:border-brand-900/30 transition-colors bg-slate-50 dark:bg-slate-800">
+                        <img 
+                          src={item.attachment.data} 
+                          alt={item.attachment.name} 
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer */}
@@ -311,9 +328,10 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                       href={item.attachment.data} 
                       download={item.attachment.name}
                       className="flex items-center gap-2 px-3 py-1.5 bg-brand-50 dark:bg-brand-900/10 rounded-lg text-xs font-bold text-brand-700 dark:text-brand-300 hover:bg-brand-100 hover:text-brand-800 dark:hover:bg-brand-900/30 dark:hover:text-brand-200 transition-colors" 
-                      title="Baixar anexo"
+                      title={hasImage ? "Baixar Imagem" : "Baixar Arquivo"}
                      >
-                        <Paperclip className="w-3.5 h-3.5" /> Anexo
+                        {hasImage ? <ImageIcon className="w-3.5 h-3.5" /> : <Paperclip className="w-3.5 h-3.5" />}
+                        {hasImage ? "Ver Imagem" : "Baixar Anexo"}
                      </a>
                    )}
                 </div>
@@ -430,27 +448,36 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                         <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 ml-1">Anexo (Opcional)</label>
                         <div 
                           onClick={() => fileInputRef.current?.click()} 
-                          className={`border-2 border-dashed rounded-2xl p-6 cursor-pointer transition-all flex items-center gap-4 group ${
+                          className={`border-2 border-dashed rounded-2xl p-6 cursor-pointer transition-all flex flex-col gap-4 group ${
                             formData.attachment 
                               ? 'border-brand-400 bg-brand-50 dark:bg-brand-900/10' 
                               : 'border-slate-200 dark:border-slate-800 hover:border-brand-300 hover:bg-slate-50 dark:hover:bg-slate-900'
                           }`}
                         >
                            {formData.attachment ? (
-                             <>
-                               <div className="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center text-brand-600 shadow-sm">
-                                 <CheckCircle2 className="w-6 h-6" />
+                             <div className="w-full">
+                               <div className="flex items-center gap-4">
+                                 <div className="w-12 h-12 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center text-brand-600 shadow-sm shrink-0">
+                                   <CheckCircle2 className="w-6 h-6" />
+                                 </div>
+                                 <div className="flex-1 overflow-hidden">
+                                   <p className="text-sm font-bold text-brand-700 dark:text-brand-300 truncate">{formData.attachment.name}</p>
+                                   <p className="text-xs text-brand-500 mt-0.5">
+                                     {selectedFile ? 'Pronto para enviar' : 'Anexo existente'}
+                                   </p>
+                                 </div>
+                                 <button type="button" onClick={removeFile} className="p-2 hover:bg-brand-200 rounded-full transition-colors text-brand-600"><X className="w-4 h-4" /></button>
                                </div>
-                               <div className="flex-1">
-                                 <p className="text-sm font-bold text-brand-700 dark:text-brand-300">{formData.attachment.name}</p>
-                                 <p className="text-xs text-brand-500 mt-0.5">
-                                   {selectedFile ? 'Pronto para enviar' : 'Anexo existente'}
-                                 </p>
-                               </div>
-                               <button type="button" onClick={removeFile} className="p-2 hover:bg-brand-200 rounded-full transition-colors text-brand-600"><X className="w-4 h-4" /></button>
-                             </>
+                               
+                               {/* Preview no Form */}
+                               {formData.attachment.type?.startsWith('image/') && (
+                                  <div className="mt-4 rounded-xl overflow-hidden border border-brand-200 dark:border-brand-900/30 max-h-48">
+                                    <img src={formData.attachment.data} alt="Preview" className="w-full h-full object-contain bg-black/5" />
+                                  </div>
+                               )}
+                             </div>
                            ) : (
-                             <>
+                             <div className="flex items-center gap-4">
                                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 group-hover:text-brand-500 transition-colors">
                                  <Paperclip className="w-5 h-5" />
                                </div>
@@ -458,14 +485,14 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                                  <p className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-brand-600 transition-colors">Anexar arquivo</p>
                                  <p className="text-xs text-slate-400">PDF ou Imagem (Máx 50MB)</p>
                                </div>
-                             </>
+                             </div>
                            )}
                            <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.jpg,.png,.doc,.docx" onChange={handleFileChange} />
                         </div>
                       </div>
 
                       <button type="submit" disabled={submitting} className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-lg py-4 rounded-2xl shadow-xl shadow-brand-500/20 flex justify-center items-center gap-3 transition-all transform active:scale-[0.98] mt-4">
-                         {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : (editingId ? "Atualizar Atividade" : "Salvar no MongoDB")}
+                         {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : (editingId ? "Salvar Alterações" : "Registrar Atividade")}
                       </button>
                    </form>
                 </div>
