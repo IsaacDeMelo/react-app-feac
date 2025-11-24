@@ -35,9 +35,20 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          secure: false,
+        }
+      }
+    },
+    build: {
+      outDir: 'dist',
+      emptyOutDir: true,
+    },
     define: {
-      // This performs a robust string replacement during build.
-      // Everywhere "process.env.API_KEY" appears in the code, it is replaced by the string value.
       'process.env.API_KEY': JSON.stringify(apiKey),
     }
   };

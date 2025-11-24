@@ -31,9 +31,14 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
 
   const loadData = async () => {
     setLoading(true);
-    const data = await getActivities();
-    setActivities(data);
-    setLoading(false);
+    try {
+      const data = await getActivities();
+      setActivities(data);
+    } catch (e) {
+      console.error("Erro ao carregar atividades:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -46,7 +51,8 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
         await deleteActivity(id);
         await loadData();
       } catch (e) {
-        alert("Erro ao excluir.");
+        console.error(e);
+        alert("Erro ao excluir. Verifique o console.");
       }
     }
   };
@@ -75,9 +81,8 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // LocalStorage tem limite de ~5MB no total. Avisar se o arquivo for muito grande.
-      if (file.size > 2 * 1024 * 1024) { // 2MB warning
-        alert("Atenção: Arquivos grandes podem encher o armazenamento local do navegador rapidamente.");
+      if (file.size > 5 * 1024 * 1024) { // 5MB warning (API pode aguentar mais, mas bom avisar)
+        alert("Atenção: Arquivo grande. O envio pode demorar.");
       }
       setSelectedFile(file);
       
@@ -142,8 +147,8 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
       setFormData({ title: '', subject: '', date: '', type: 'atividade', description: '', attachment: null });
       setSelectedFile(null);
     } catch (error) {
-      console.error(error);
-      alert("Erro ao salvar. Armazenamento local pode estar cheio.");
+      console.error("ERRO AO SALVAR:", error);
+      alert("Erro ao salvar. Verifique se o backend está rodando (npm start) e olhe o Console (F12) para detalhes.");
     } finally {
       setSubmitting(false);
     }
@@ -193,7 +198,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                 </div>
                 <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">Mural da Turma</h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm font-medium max-w-md leading-relaxed">
-                  Acompanhe datas de provas, entregas de trabalhos e avisos importantes centralizados aqui (Modo Local).
+                  Acompanhe datas de provas, entregas de trabalhos e avisos importantes centralizados aqui.
                 </p>
              </div>
              
@@ -242,7 +247,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
               <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-600" />
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Tudo tranquilo por aqui</h3>
-            <p className="text-slate-500 max-w-xs mx-auto text-sm">Nenhuma atividade cadastrada localmente.</p>
+            <p className="text-slate-500 max-w-xs mx-auto text-sm">Nenhuma atividade cadastrada.</p>
           </div>
         )}
 
@@ -347,7 +352,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                        {editingId ? 'Editar Atividade' : 'Nova Atividade'}
                      </h3>
                      <p className="text-xs text-slate-500 font-medium mt-1 uppercase tracking-wide">
-                       {editingId ? 'Atualizar informações' : 'Adicionar ao Mural (Local)'}
+                       {editingId ? 'Atualizar informações' : 'Adicionar ao Mural'}
                      </p>
                    </div>
                    <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors"><X className="w-6 h-6 text-slate-400" /></button>
@@ -422,7 +427,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                       
                       {/* Attachment Custom Input */}
                       <div>
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 ml-1">Anexo (Opcional - Salvo Localmente)</label>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5 ml-1">Anexo (Opcional)</label>
                         <div 
                           onClick={() => fileInputRef.current?.click()} 
                           className={`border-2 border-dashed rounded-2xl p-6 cursor-pointer transition-all flex items-center gap-4 group ${
@@ -439,7 +444,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                                <div className="flex-1">
                                  <p className="text-sm font-bold text-brand-700 dark:text-brand-300">{formData.attachment.name}</p>
                                  <p className="text-xs text-brand-500 mt-0.5">
-                                   {selectedFile ? 'Pronto para salvar' : 'Anexo existente'}
+                                   {selectedFile ? 'Pronto para enviar' : 'Anexo existente'}
                                  </p>
                                </div>
                                <button type="button" onClick={removeFile} className="p-2 hover:bg-brand-200 rounded-full transition-colors text-brand-600"><X className="w-4 h-4" /></button>
@@ -451,7 +456,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                                </div>
                                <div>
                                  <p className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-brand-600 transition-colors">Anexar arquivo</p>
-                                 <p className="text-xs text-slate-400">PDF ou Imagem (Cuidado com tamanho)</p>
+                                 <p className="text-xs text-slate-400">PDF ou Imagem (Máx 50MB)</p>
                                </div>
                              </>
                            )}
@@ -460,7 +465,7 @@ export const DashboardView: React.FC<DashboardProps> = ({ isAdmin }) => {
                       </div>
 
                       <button type="submit" disabled={submitting} className="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold text-lg py-4 rounded-2xl shadow-xl shadow-brand-500/20 flex justify-center items-center gap-3 transition-all transform active:scale-[0.98] mt-4">
-                         {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : (editingId ? "Atualizar Atividade" : "Salvar no Dispositivo")}
+                         {submitting ? <Loader2 className="w-6 h-6 animate-spin" /> : (editingId ? "Atualizar Atividade" : "Salvar no MongoDB")}
                       </button>
                    </form>
                 </div>

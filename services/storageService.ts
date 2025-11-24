@@ -7,8 +7,6 @@ const USE_API = true;
 // Alterado para caminho relativo. 
 // Em produção (Render), o front e o back estão na mesma origem.
 // Em dev local, você deve configurar um proxy no vite ou rodar tudo junto.
-// Se rodar separado localmente, o proxy do Vite lidará com isso ou você precisará mudar para localhost temporariamente,
-// mas o ideal para deploy é o caminho relativo.
 const API_URL = '/api/activities';
 
 const ACTIVITIES_KEY = 'ufal_activities_v2';
@@ -150,17 +148,17 @@ const deleteActivityLocal = async (id: string): Promise<void> => {
 const getActivitiesAPI = async (): Promise<Activity[]> => {
   try {
     const response = await fetch(API_URL);
-    if (!response.ok) throw new Error('Erro na API');
+    if (!response.ok) {
+       console.warn(`API retornou erro ${response.status}:`, await response.text());
+       return [];
+    }
     const activities: Activity[] = await response.json();
     
-    // Filtragem de data também pode ser feita no backend, mas mantemos aqui por segurança visual
     return activities
       .filter(a => !isExpired(a.date))
       .sort((a, b) => a.date.localeCompare(b.date));
   } catch (error) {
-    console.error("Falha ao buscar da API:", error);
-    // Em produção, isso significa que a API caiu.
-    // Em dev, pode ser que o proxy não esteja rodando ou backend desligado.
+    console.error("Falha ao buscar da API. Verifique se o backend está rodando.", error);
     return [];
   }
 };
@@ -185,11 +183,16 @@ const addActivityAPI = async (
     attachment
   };
 
-  await fetch(API_URL, {
+  const response = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Erro API (${response.status}): ${errText}`);
+  }
 };
 
 const updateActivityAPI = async (
@@ -218,17 +221,25 @@ const updateActivityAPI = async (
     attachment: updatedAttachment
   };
 
-  await fetch(`${API_URL}/${activity.id}`, {
+  const response = await fetch(`${API_URL}/${activity.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+
+  if (!response.ok) {
+     throw new Error("Falha ao atualizar na API");
+  }
 };
 
 const deleteActivityAPI = async (id: string): Promise<void> => {
-  await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(`${API_URL}/${id}`, {
     method: 'DELETE'
   });
+  
+  if (!response.ok) {
+     throw new Error("Falha ao excluir na API");
+  }
 };
 
 // ==========================================
