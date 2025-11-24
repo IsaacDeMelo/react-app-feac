@@ -1,24 +1,7 @@
-import { Activity, AiConfig } from '../types';
-import { db, storage } from './firebase';
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  query, 
-  orderBy, 
-  setDoc,
-  getDoc,
-  onSnapshot,
-  Unsubscribe
-} from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Activity, AiConfig, Attachment } from '../types';
 
-const ACTIVITIES_COLLECTION = 'activities';
-const SETTINGS_COLLECTION = 'settings';
-const AI_CONFIG_DOC = 'ai_config';
+const ACTIVITIES_KEY = 'ufal_activities_v2';
+const SETTINGS_KEY = 'ufal_settings_v2';
 
 // Helper to check if date is past
 const isExpired = (dateString: string): boolean => {
@@ -34,81 +17,72 @@ const isExpired = (dateString: string): boolean => {
   return today > expirationDate;
 };
 
+// Helper: File to Base64
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
+};
+
 // -- Activities Service --
 
-// Fetch once (Used by AI Tutor)
 export const getActivities = async (): Promise<Activity[]> => {
   try {
-    const q = query(collection(db, ACTIVITIES_COLLECTION), orderBy('date', 'asc'));
-    const querySnapshot = await getDocs(q);
+    const data = localStorage.getItem(ACTIVITIES_KEY);
+    if (!data) return [];
     
-    const activities: Activity[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data() as Omit<Activity, 'id'>;
-      if (!isExpired(data.date)) {
-        activities.push({ id: doc.id, ...data });
-      }
-    });
-
-    return activities;
+    const activities: Activity[] = JSON.parse(data);
+    
+    // Filter expired and sort by date
+    return activities
+      .filter(a => !isExpired(a.date))
+      .sort((a, b) => a.date.localeCompare(b.date));
   } catch (error) {
-    console.error("Error fetching activities from Firebase:", error);
+    console.error("Error reading activities:", error);
     return [];
   }
 };
 
-// Real-time Subscription (Used by Dashboard)
-export const subscribeToActivities = (onUpdate: (data: Activity[]) => void): Unsubscribe => {
-  const q = query(collection(db, ACTIVITIES_COLLECTION), orderBy('date', 'asc'));
-  
-  return onSnapshot(q, (snapshot) => {
-    const activities: Activity[] = [];
-    snapshot.forEach((doc) => {
-      const data = doc.data() as Omit<Activity, 'id'>;
-      // Filter client-side
-      if (!isExpired(data.date)) {
-        activities.push({ id: doc.id, ...data });
-      }
-    });
-    onUpdate(activities);
-  }, (error) => {
-    console.error("Firebase Realtime Error:", error);
-    if (error.code === 'permission-denied') {
-      alert("Acesso Negado: Verifique as Regras de Segurança (Security Rules) no Console do Firebase.");
-    }
-  });
-};
-
 export const addActivity = async (
-  activity: Omit<Activity, 'id' | 'createdAt' | 'attachment'>,
+  activityData: Omit<Activity, 'id' | 'createdAt' | 'attachment'>,
   file: File | null
 ): Promise<void> => {
   
-  let attachmentData = undefined;
+  let attachment: Attachment | undefined = undefined;
 
-  // Upload file if exists
   if (file) {
     try {
-      const storageRef = ref(storage, `attachments/${Date.now()}_${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      attachmentData = {
+      const base64 = await fileToBase64(file);
+      attachment = {
         name: file.name,
         type: file.type,
-        data: downloadURL // In Firebase version, 'data' stores the URL
+        data: base64
       };
     } catch (e) {
-      console.error("Error uploading file:", e);
-      throw new Error("Falha no upload do arquivo");
+      console.error("Error converting file", e);
+      throw new Error("Falha ao processar arquivo");
     }
   }
 
-  await addDoc(collection(db, ACTIVITIES_COLLECTION), {
-    ...activity,
+  const newActivity: Activity = {
+    id: Date.now().toString() + Math.random().toString(36).substring(2),
     createdAt: Date.now(),
-    attachment: attachmentData
-  });
+    title: activityData.title,
+    subject: activityData.subject,
+    date: activityData.date,
+    type: activityData.type,
+    description: activityData.description,
+    attachment: attachment
+  };
+
+  const currentData = localStorage.getItem(ACTIVITIES_KEY);
+  const activities: Activity[] = currentData ? JSON.parse(currentData) : [];
+  
+  activities.push(newActivity);
+  localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
 };
 
 export const updateActivity = async (
@@ -116,55 +90,60 @@ export const updateActivity = async (
   newFile?: File | null
 ): Promise<void> => {
   
-  const activityRef = doc(db, ACTIVITIES_COLLECTION, activity.id);
-  let updatedAttachment = activity.attachment;
+  const currentData = localStorage.getItem(ACTIVITIES_KEY);
+  if (!currentData) return;
+
+  let activities: Activity[] = JSON.parse(currentData);
+  const index = activities.findIndex(a => a.id === activity.id);
+
+  if (index === -1) return;
+
+  let updatedAttachment = activities[index].attachment; // Keep existing by default
 
   if (newFile) {
-    // 1. Upload new
-    const storageRef = ref(storage, `attachments/${Date.now()}_${newFile.name}`);
-    const snapshot = await uploadBytes(storageRef, newFile);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
+    const base64 = await fileToBase64(newFile);
     updatedAttachment = {
       name: newFile.name,
       type: newFile.type,
-      data: downloadURL
+      data: base64
     };
   } else if (newFile === null) {
     // Explicitly removed
     updatedAttachment = undefined;
   }
 
-  // Use updateDoc only for fields that change, but here we pass full structure mostly
-  await updateDoc(activityRef, {
+  activities[index] = {
+    ...activities[index],
     title: activity.title,
     subject: activity.subject,
     date: activity.date,
     type: activity.type,
     description: activity.description,
-    attachment: updatedAttachment === undefined ? null : updatedAttachment // Firestore prefers null over undefined
-  });
+    attachment: updatedAttachment
+  };
+
+  localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
 };
 
 export const deleteActivity = async (id: string): Promise<void> => {
-  await deleteDoc(doc(db, ACTIVITIES_COLLECTION, id));
+  const currentData = localStorage.getItem(ACTIVITIES_KEY);
+  if (!currentData) return;
+
+  let activities: Activity[] = JSON.parse(currentData);
+  activities = activities.filter(a => a.id !== id);
+  
+  localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
 };
 
 // -- AI Configuration Service --
 
 export const getAiConfig = async (): Promise<AiConfig> => {
-  try {
-    const docRef = doc(db, SETTINGS_COLLECTION, AI_CONFIG_DOC);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      return docSnap.data() as AiConfig;
-    }
-  } catch (e) {
-    console.error("Error fetching AI config", e);
+  const data = localStorage.getItem(SETTINGS_KEY);
+  if (data) {
+    return JSON.parse(data) as AiConfig;
   }
 
-  // Default fallback
+  // Default
   return {
     context: `Você é a Luna, uma monitora acadêmica auxiliar para o curso de Administração.
 
@@ -176,5 +155,5 @@ Se você não sabe alguma coisa, apenas diga que não sabe.`
 };
 
 export const saveAiConfig = async (config: AiConfig): Promise<void> => {
-  await setDoc(doc(db, SETTINGS_COLLECTION, AI_CONFIG_DOC), config);
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(config));
 };
