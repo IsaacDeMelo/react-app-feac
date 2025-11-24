@@ -5,7 +5,7 @@ export enum ViewMode {
   LOGIN = 'LOGIN'
 }
 
-export type ActivityType = 'prova' | 'trabalho' | 'atividade' | 'aviso';
+export type ActivityType = 'prova' | 'trabalho' | 'atividade' | 'aviso' | 'banner';
 
 export interface Attachment {
   name: string;
@@ -17,7 +17,7 @@ export interface Activity {
   id: string;
   title: string;
   description: string;
-  date: string; // ISO string YYYY-MM-DD
+  date: string; // ISO string YYYY-MM-DDTHH:mm
   type: ActivityType;
   subject: string;
   createdAt: number;

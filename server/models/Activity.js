@@ -3,10 +3,10 @@ import mongoose from 'mongoose';
 const ActivitySchema = new mongoose.Schema({
   title: { type: String, required: true },
   subject: { type: String, required: true },
-  date: { type: String, required: true }, // Formato YYYY-MM-DD
+  date: { type: String, required: true }, // Formato YYYY-MM-DDTHH:mm
   type: { 
     type: String, 
-    enum: ['prova', 'trabalho', 'atividade', 'aviso'], 
+    enum: ['prova', 'trabalho', 'atividade', 'aviso', 'banner'], 
     required: true 
   },
   description: String,

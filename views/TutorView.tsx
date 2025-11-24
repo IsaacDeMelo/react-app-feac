@@ -30,16 +30,16 @@ export const TutorView: React.FC = () => {
         
         // 3. Obter data atual para cálculos de tempo
         const today = new Date();
-        const dateString = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const dateString = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
         // 4. Formatar lista de atividades para a IA entender claramente
         const activitiesList = activities.length > 0 
           ? activities.map(a => {
-              const [y, m, d] = a.date.split('-');
-              const brDate = `${d}/${m}/${y}`;
-              return `- DATA: ${brDate} | TIPO: ${a.type.toUpperCase()} | TÍTULO: ${a.title} | DISCIPLINA: ${a.subject} | OBS: ${a.description}`;
+              const d = new Date(a.date);
+              const formattedDate = d.toLocaleString('pt-BR');
+              return `- DATA/HORA: ${formattedDate} | TIPO: ${a.type.toUpperCase()} | TÍTULO: ${a.title} | DISCIPLINA: ${a.subject} | OBS: ${a.description}`;
             }).join('\n')
-          : "Nenhuma atividade cadastrada no mural no momento.";
+          : "Nenhum registro cadastrado no mural no momento.";
 
         // 5. Criar o Prompt de Sistema Robusto
         const systemContext = `
@@ -54,8 +54,9 @@ export const TutorView: React.FC = () => {
         --- HOJE ---
         Data atual: ${dateString} (Use isso para calcular "amanhã", "semana que vem", etc)
         
-        --- MURAL DA TURMA (CALENDÁRIO DE PROVAS E TRABALHOS) ---
+        --- MURAL DA TURMA (CALENDÁRIO DE PROVAS, TRABALHOS E AVISOS) ---
         Aqui está a lista exata do que está agendado. Use APENAS esta lista para responder sobre datas. Se não estiver aqui, não existe.
+        Obs: Se o tipo for "BANNER", geralmente é um aviso visual ou imagem importante.
         
         ${activitiesList}
 
@@ -139,7 +140,7 @@ export const TutorView: React.FC = () => {
          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
             <CalendarCheck className="w-3 h-3 text-green-500" />
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-              {activityCount > 0 ? `Sincronizado: ${activityCount} atividades` : 'Mural vazio'}
+              {activityCount > 0 ? `Sincronizado: ${activityCount} registros` : 'Mural vazio'}
             </span>
          </div>
       </div>
