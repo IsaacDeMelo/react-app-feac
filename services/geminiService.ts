@@ -1,4 +1,4 @@
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenAI, Chat, Content } from "@google/genai";
 
 // Vite will replace 'process.env.API_KEY' with the actual string value during build.
 // We use a try-catch fallback just in case the replacement fails in some edge case environment.
@@ -14,7 +14,11 @@ const apiKey = getApiKey();
 const ai = new GoogleGenAI({ apiKey: apiKey });
 
 // -- Chat Service --
-export const createChatSession = (modelName: string = 'gemini-2.5-flash', customContext: string = '') => {
+export const createChatSession = (
+  modelName: string = 'gemini-2.5-flash', 
+  customContext: string = '',
+  history: { role: 'user' | 'model', text: string }[] = []
+) => {
   if (!apiKey) {
     console.warn("No API Key found. Chat will run in DEMO mode.");
   }
@@ -25,15 +29,22 @@ export const createChatSession = (modelName: string = 'gemini-2.5-flash', custom
     ? `${defaultInstruction}\n\n${customContext}` 
     : defaultInstruction;
 
+  // Converter histórico simples para o formato do SDK (Content[])
+  const formattedHistory: Content[] = history.map(msg => ({
+    role: msg.role,
+    parts: [{ text: msg.text }]
+  }));
+
   return ai.chats.create({
     model: modelName,
     config: {
       systemInstruction: systemInstruction,
     },
+    history: formattedHistory
   });
 };
 
-export const sendMessageStream = async (chat: Chat, message: string) => {
+export const sendMessageStream = async (chat: Chat, message: string, attachment?: { mimeType: string, data: string }) => {
   if (!apiKey) {
     // Return a mock generator if no key to avoid API error
     async function* mockGenerator() {
@@ -42,14 +53,36 @@ export const sendMessageStream = async (chat: Chat, message: string) => {
     }
     return mockGenerator();
   }
-  return await chat.sendMessageStream({ message });
+
+  // Se houver anexo, envia como conteúdo multimodal (Texto + Arquivo)
+  if (attachment) {
+    // O Gemini precisa apenas da string Base64 crua, sem o prefixo "data:image/png;base64,"
+    const base64Clean = attachment.data.includes(',') ? attachment.data.split(',')[1] : attachment.data;
+    
+    return await chat.sendMessageStream({
+      message: [
+        { text: message },
+        { 
+          inlineData: { 
+            mimeType: attachment.mimeType, 
+            data: base64Clean 
+          } 
+        }
+      ]
+    });
+  }
+
+  // Apenas texto
+  return await chat.sendMessageStream({ 
+    message: message
+  });
 };
 
 // -- Vision Service --
 export const analyzeImage = async (base64Image: string, prompt: string) => {
   if (!apiKey) return "⚠️ API Key ausente. Configure no Render para usar a visão computacional.";
 
-  const base64Data = base64Image.split(',')[1];
+  const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
   
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-image',

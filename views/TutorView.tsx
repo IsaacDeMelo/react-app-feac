@@ -1,102 +1,162 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Sparkles, CalendarCheck } from 'lucide-react';
+import { Send, Bot, User, Loader2, Sparkles, CalendarCheck, Paperclip, Trash2, MessageSquarePlus } from 'lucide-react';
 import { createChatSession, sendMessageStream } from '../services/geminiService';
-import { ChatMessage } from '../types';
+import { ChatMessage, Activity } from '../types';
 import { getAiConfig, getActivities } from '../services/storageService';
 import { Markdown } from '../components/Markdown';
 import { Chat, GenerateContentResponse } from '@google/genai';
 
 export const TutorView: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const LUNA_STORAGE_KEY = 'ufal_luna_chat_history_v1';
+  
+  // Inicializar mensagens do LocalStorage se existirem
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem(LUNA_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const chatSessionRef = useRef<Chat | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  
+  // Estados para contexto
+  const [storedActivities, setStoredActivities] = useState<Activity[]>([]);
   const [activityCount, setActivityCount] = useState(0);
 
   // Avatar da Luna
   const LUNA_AVATAR_URL = "https://img.icons8.com/?size=100&id=XwL1uwivrCEF&format=png&color=000000";
 
+  // Salvar no LocalStorage sempre que houver mudança nas mensagens
   useEffect(() => {
-    const initChat = async () => {
-      try {
-        // 1. Obter configurações salvas (contexto da disciplina) - Agora é Async com Firebase
-        const aiConfig = await getAiConfig();
-        
-        // 2. Obter atividades do Mural
-        const activities = await getActivities();
-        setActivityCount(activities.length);
-        
-        // 3. Obter data atual para cálculos de tempo
-        const today = new Date();
-        const dateString = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    localStorage.setItem(LUNA_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
-        // 4. Formatar lista de atividades para a IA entender claramente
-        const activitiesList = activities.length > 0 
-          ? activities.map(a => {
-              const d = new Date(a.date);
-              const formattedDate = d.toLocaleString('pt-BR');
-              return `- DATA/HORA: ${formattedDate} | TIPO: ${a.type.toUpperCase()} | TÍTULO: ${a.title} | DISCIPLINA: ${a.subject} | OBS: ${a.description}`;
-            }).join('\n')
-          : "Nenhum registro cadastrado no mural no momento.";
+  // Função para inicializar a sessão do Gemini
+  const initializeSession = async (currentHistory: ChatMessage[] = []) => {
+    setIsInitializing(true);
+    try {
+      // 1. Obter configurações salvas (contexto da disciplina)
+      const aiConfig = await getAiConfig();
+      
+      // 2. Obter atividades do Mural
+      const activities = await getActivities();
+      setStoredActivities(activities);
+      setActivityCount(activities.length);
+      
+      // 3. Obter data atual
+      const today = new Date();
+      const dateString = today.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-        // 5. Criar o Prompt de Sistema Robusto
-        const systemContext = `
-        VOCÊ É A LUNA, A MONITORA VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e auxiliar com o cronograma.
-        
-        --- PERSONA ---
-        Nome: Luna
-        Gênero: Feminino
-        Tom de voz: Profissional e direta, porém simpática e prestativa. Use emojis pontuais para suavizar, mas mantenha a formalidade acadêmica. Seja "legal", mas não "melosa".
-        IMPORTANTE: Fale sempre no SINGULAR. Trate o usuário como "você" ou "aluno". NUNCA use "pessoal", "turma" ou "galera".
-        
-        --- HOJE ---
-        Data atual: ${dateString} (Use isso para calcular "amanhã", "semana que vem", etc)
-        
-        --- MURAL DA TURMA (CALENDÁRIO DE PROVAS, TRABALHOS E AVISOS) ---
-        Aqui está a lista exata do que está agendado. Use APENAS esta lista para responder sobre datas. Se não estiver aqui, não existe.
-        Obs: Se o tipo for "BANNER", geralmente é um aviso visual ou imagem importante.
-        
-        ${activitiesList}
+      // 4. Formatar lista de atividades
+      const activitiesList = activities.length > 0 
+        ? activities.map(a => {
+            const d = new Date(a.date);
+            const formattedDate = d.toLocaleString('pt-BR');
+            const hasAttachment = a.attachment ? "(Possui arquivo anexo)" : "";
+            return `- DATA/HORA: ${formattedDate} | TIPO: ${a.type.toUpperCase()} | TÍTULO: ${a.title} | DISCIPLINA: ${a.subject} ${hasAttachment} | OBS: ${a.description}`;
+          }).join('\n')
+        : "Nenhum registro cadastrado no mural no momento.";
 
-        --- CONTEXTO DA DISCIPLINA ---
-        ${aiConfig.context}
+      // 5. Prompt de Sistema
+      const systemContext = `
+      VOCÊ É A LUNA, A MONITORA VIRTUAL DA TURMA. Sua função é tirar dúvidas sobre o conteúdo e auxiliar com o cronograma.
+      
+      --- PERSONA ---
+      Nome: Luna
+      Gênero: Feminino
+      Tom de voz: Profissional e direta, porém simpática e prestativa. Use emojis pontuais para suavizar, mas mantenha a formalidade acadêmica.
+      IMPORTANTE: Fale sempre no SINGULAR. Trate o usuário como "você".
+      
+      --- MEMÓRIA DA CONVERSA ---
+      Esta é uma conversa contínua. Se o histórico mostrar que já nos cumprimentamos, NÃO se apresente novamente (não diga "Olá, sou a Luna" de novo). Apenas continue o assunto ou responda a nova pergunta.
+      
+      --- HOJE ---
+      Data atual: ${dateString}
+      
+      --- MURAL DA TURMA ---
+      ${activitiesList}
 
-        --- REGRAS ---
-        1. Se perguntarem "o que tem pra fazer?", liste as atividades futuras.
-        2. Se o mural estiver vazio, informe que não há nada agendado de forma amigável.
-        3. Responda de forma concisa e clara.
-        `;
+      --- CONTEXTO DA DISCIPLINA ---
+      ${aiConfig.context}
+      `;
 
-        chatSessionRef.current = createChatSession('gemini-2.5-flash', systemContext);
-      } catch (e) {
-        console.error("Erro ao iniciar chat", e);
-      } finally {
-        setIsInitializing(false);
-      }
-    };
+      // Filtrar histórico para formato da API (remover erros e loadings)
+      const apiHistory = currentHistory
+        .filter(m => !m.isError && !m.isLoading && m.text)
+        .map(m => ({ role: m.role, text: m.text }));
 
-    initChat();
-  }, []);
+      chatSessionRef.current = createChatSession('gemini-2.5-flash', systemContext, apiHistory);
+    } catch (e) {
+      console.error("Erro ao iniciar chat", e);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  // Inicialização única ao montar o componente
+  useEffect(() => {
+    initializeSession(messages);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Executa apenas uma vez na montagem
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isStreaming]);
+
+  const handleNewChat = () => {
+    if (confirm("Deseja apagar o histórico e iniciar uma nova conversa?")) {
+      localStorage.removeItem(LUNA_STORAGE_KEY);
+      setMessages([]);
+      initializeSession([]); // Reinicia sessão sem histórico
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isStreaming || !chatSessionRef.current) return;
 
     const userMsg = input.trim();
+    const lowerMsg = userMsg.toLowerCase();
     setInput('');
     setIsStreaming(true);
 
+    // Lógica de Anexo Inteligente
+    let attachmentToSend = undefined;
+    let attachmentName = '';
+
+    const relevantActivity = storedActivities.find(a => 
+      a.attachment && 
+      a.attachment.data && 
+      (lowerMsg.includes(a.title.toLowerCase()) || lowerMsg.includes(a.subject.toLowerCase()))
+    );
+
+    if (relevantActivity && relevantActivity.attachment) {
+      attachmentName = relevantActivity.attachment.name;
+      attachmentToSend = {
+        mimeType: relevantActivity.attachment.type,
+        data: relevantActivity.attachment.data
+      };
+    }
+
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    
+    if (attachmentToSend) {
+      setMessages(prev => [...prev, { 
+        role: 'model', 
+        text: `*📎 Anexando automaticamente o arquivo "${attachmentName}" da atividade "${relevantActivity?.title}" para análise...*` 
+      }]);
+    }
+
     setMessages(prev => [...prev, { role: 'model', text: '', isLoading: true }]);
 
     try {
-      const result = await sendMessageStream(chatSessionRef.current, userMsg);
+      const result = await sendMessageStream(chatSessionRef.current, userMsg, attachmentToSend);
       
       let fullText = '';
       for await (const chunk of result) {
@@ -105,7 +165,7 @@ export const TutorView: React.FC = () => {
         setMessages(prev => {
           const newMsgs = [...prev];
           const last = newMsgs[newMsgs.length - 1];
-          if (last.role === 'model') {
+          if (last.role === 'model' && last.isLoading) {
             last.text = fullText;
             last.isLoading = false;
           }
@@ -115,15 +175,20 @@ export const TutorView: React.FC = () => {
     } catch (error) {
       setMessages(prev => {
         const newMsgs = [...prev];
-        newMsgs[newMsgs.length - 1] = { role: 'model', text: "Desculpe, tive um problema de conexão. Tente novamente.", isError: true };
+        const last = newMsgs[newMsgs.length - 1];
+        last.text = "Desculpe, tive um problema de conexão. Tente novamente.";
+        last.isError = true;
+        last.isLoading = false;
         return newMsgs;
       });
+      // Recriar sessão em caso de erro crítico para tentar recuperar
+      initializeSession(messages);
     } finally {
       setIsStreaming(false);
     }
   };
 
-  if (isInitializing) {
+  if (isInitializing && messages.length === 0) {
     return (
       <div className="flex flex-col h-full items-center justify-center bg-slate-100 dark:bg-slate-950 gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-brand-600" />
@@ -135,13 +200,28 @@ export const TutorView: React.FC = () => {
   return (
     <div className="flex flex-col h-full w-full relative bg-slate-100 dark:bg-slate-950">
       
-      {/* Context Badge */}
-      <div className="absolute top-4 left-0 right-0 z-10 flex justify-center pointer-events-none opacity-0 animate-fade-in" style={{ animationDelay: '500ms', opacity: 1 }}>
-         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2">
+      {/* Header Contexto + Botão Reset */}
+      <div className="absolute top-4 left-0 right-0 z-10 flex justify-between items-start px-6 pointer-events-none">
+         {/* Espaço vazio esquerda para balancear */}
+         <div className="w-10"></div> 
+
+         {/* Badge Central */}
+         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full shadow-sm flex items-center gap-2 animate-fade-in pointer-events-auto">
             <CalendarCheck className="w-3 h-3 text-green-500" />
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
-              {activityCount > 0 ? `Sincronizado: ${activityCount} registros` : 'Mural vazio'}
+              {activityCount > 0 ? `${activityCount} registros` : 'Mural vazio'}
             </span>
+         </div>
+
+         {/* Botão Nova Conversa */}
+         <div className="pointer-events-auto">
+           <button 
+             onClick={handleNewChat}
+             title="Apagar histórico e iniciar nova conversa"
+             className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 dark:bg-slate-800/80 hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 border border-slate-200 dark:border-slate-700 shadow-sm transition-all backdrop-blur-md"
+           >
+             <Trash2 className="w-4 h-4" />
+           </button>
          </div>
       </div>
 
@@ -167,10 +247,6 @@ export const TutorView: React.FC = () => {
                  <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><CalendarCheck className="w-4 h-4" /></span>
                  O que tenho agendado para essa semana?
                </button>
-               <button onClick={() => setInput("Quais são as regras para o trabalho final?")} className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 transition-all text-left flex items-center gap-3 shadow-sm">
-                 <span className="p-2 bg-brand-50 dark:bg-brand-900/20 rounded-lg text-brand-600"><Bot className="w-4 h-4" /></span>
-                 Quais as regras do trabalho?
-               </button>
             </div>
           </div>
         )}
@@ -178,7 +254,6 @@ export const TutorView: React.FC = () => {
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex w-full gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}>
             
-            {/* Avatar Bot - Increased Size */}
             {msg.role === 'model' && (
               <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center flex-shrink-0 mt-auto mb-1 shadow-sm overflow-hidden p-2">
                 <img src={LUNA_AVATAR_URL} alt="Luna" className="w-full h-full object-contain opacity-90" />
@@ -186,7 +261,6 @@ export const TutorView: React.FC = () => {
             )}
 
             <div className="flex flex-col max-w-[85%] md:max-w-[70%]">
-               {/* Name Label for Model */}
                {msg.role === 'model' && (
                  <span className="text-[10px] font-bold text-slate-400 ml-1 mb-1">Luna</span>
                )}
