@@ -266,7 +266,7 @@ export const TutorView: React.FC = () => {
                )}
                
                <div className={`
-                 relative px-5 py-4 text-[15px] leading-relaxed shadow-sm
+                 relative px-5 py-4 text-[15px] leading-relaxed shadow-sm break-words
                  ${msg.role === 'user' 
                    ? 'bg-brand-600 text-white rounded-[1.2rem] rounded-br-sm' 
                    : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 rounded-[1.2rem] rounded-bl-sm'

@@ -8,7 +8,7 @@ interface MarkdownProps {
 
 export const Markdown: React.FC<MarkdownProps> = ({ content, className = '' }) => {
   return (
-    <div className={`prose prose-invert prose-sm max-w-none ${className}`}>
+    <div className={`prose prose-invert prose-sm max-w-none break-words ${className}`}>
       <ReactMarkdown
         components={{
           code({ node, className, children, ...props }) {
